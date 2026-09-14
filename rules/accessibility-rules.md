@@ -17,7 +17,7 @@
 > Always-apply ruleset, generated from the accessibility-rules skill in
 > accessible-vibe-coding v1.0.0. Licensed MIT.
 >
-> Source: https://github.com/jeffbernier/accessible-vibe-coding
+> Source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 
 Every rule in this file is a hard constraint, not a suggestion. Apply all of
 them whenever this file is loaded, whether or not the request mentions
@@ -271,7 +271,7 @@ project fits and ask before building:
 
 - After generating any complete page or component, run an automated
   accessibility audit and fix every violation before presenting the output.
-  The accessible-vibe-coding repo ships one — [axe-check.js](https://github.com/jeffbernier/accessible-vibe-coding/blob/main/skills/accessibility-rules/scripts/axe-check.js),
+  The accessible-vibe-coding repo ships one — [axe-check.js](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/accessibility-rules/scripts/axe-check.js),
   which drives axe-core over a URL or a local HTML file:
 
       node scripts/axe-check.js path/to/page.html

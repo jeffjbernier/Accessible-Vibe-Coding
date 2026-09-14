@@ -4,7 +4,7 @@ description: Use when creating or modifying anything a person will see, hear, or
 license: MIT
 metadata:
   version: 1.0.0
-  source: https://github.com/jeffbernier/accessible-vibe-coding
+  source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
 # Accessibility Rules

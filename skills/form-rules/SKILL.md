@@ -4,7 +4,7 @@ description: Use when creating or modifying any HTML form, form field, form part
 license: MIT
 metadata:
   version: 1.0.0
-  source: https://github.com/jeffbernier/accessible-vibe-coding
+  source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
 # Forms Standard

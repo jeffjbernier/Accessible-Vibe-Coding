@@ -47,10 +47,10 @@ More is coming — agent definitions and automation guides — but this README o
 ### 1. Install the skills
 
 ```bash
-git clone https://github.com/jeffbernier/accessible-vibe-coding.git
+git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 mkdir -p ~/.claude/skills
-cp -r accessible-vibe-coding/skills/accessibility-rules ~/.claude/skills/
-cp -r accessible-vibe-coding/skills/form-rules ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessibility-rules ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/form-rules ~/.claude/skills/
 ```
 
 Run `/skills` in Claude Code to confirm both loaded. For project-scoped installs, Windows paths, Claude Desktop and claude.ai uploads, and the Agent SDK, see [INSTALL.md](INSTALL.md).
@@ -87,7 +87,7 @@ Anyone selling you step 2 as the whole solution is selling you a compliance thea
 
 ## Accessibility of this repo
 
-This repository practices what it documents. Markdown here uses real heading hierarchy with no skipped levels, descriptive link text (never "click here"), alt text on every image, and tables with genuine header rows rather than ASCII art. If you find something in these files that fails its own guidance, [open an issue](https://github.com/jeffbernier/accessible-vibe-coding/issues) — that's a legitimate bug.
+This repository practices what it documents. Markdown here uses real heading hierarchy with no skipped levels, descriptive link text (never "click here"), alt text on every image, and tables with genuine header rows rather than ASCII art. If you find something in these files that fails its own guidance, [open an issue](https://github.com/jeffjbernier/Accessible-Vibe-Coding/issues) — that's a legitimate bug.
 
 ---
 

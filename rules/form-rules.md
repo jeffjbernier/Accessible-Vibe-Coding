@@ -16,7 +16,7 @@
 > Always-apply ruleset, generated from the form-rules skill in
 > accessible-vibe-coding v1.0.0. Licensed MIT.
 >
-> Source: https://github.com/jeffbernier/accessible-vibe-coding
+> Source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 
 > **What this is.** The single source of truth for how every form and
 > record-display page is built, on both the **admin** and **public** sides of a
@@ -155,7 +155,7 @@ entirely:
 ## 4. Reference markup + CSS
 
 The canonical markup and CSS — the form grid, its mobile-first stylesheet, and
-the read-only record display — live in [references/markup.md](https://github.com/jeffbernier/accessible-vibe-coding/blob/HEAD/skills/form-rules/references/markup.md). Read that file
+the read-only record display — live in [references/markup.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md). Read that file
 before writing or reviewing any form markup, and copy from it rather than
 reconstructing the grid from the rules above. It is the implementation of §2
 and §3; if the two ever disagree, §2 and §3 win and the reference file is the
@@ -296,7 +296,7 @@ and move focus to it:
 - [ ] axe/Lighthouse clean in CI; keyboard-only walkthrough done; screen-reader
   pass (NVDA + one other) before release.
 
-**Checking the mechanical half.** The accessible-vibe-coding repo ships [form-check.js](https://github.com/jeffbernier/accessible-vibe-coding/blob/HEAD/skills/form-rules/scripts/form-check.js),
+**Checking the mechanical half.** The accessible-vibe-coding repo ships [form-check.js](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/scripts/form-check.js),
 which walks a rendered form and reports the boxes above that can be verified by
 machine:
 
@@ -359,7 +359,7 @@ main content form, and a footer newsletter signup all on the same page.
   "Volunteer registration"), reference that heading's `id`. This avoids
   duplicating text a sighted user already sees, and keeps the name in sync
   automatically if the heading copy changes. See the canonical example under
-  "Form grid" in [references/markup.md](https://github.com/jeffbernier/accessible-vibe-coding/blob/HEAD/skills/form-rules/references/markup.md).
+  "Form grid" in [references/markup.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md).
 
 - **Use `aria-label` only when there's no visible heading to point to** — a
   compact/inline form such as a header search box or an inline newsletter

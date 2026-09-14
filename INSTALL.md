@@ -32,27 +32,27 @@ Use personal scope if you want accessible output everywhere. Use project scope i
 ### Install — macOS and Linux
 
 ```bash
-git clone https://github.com/jeffbernier/accessible-vibe-coding.git
+git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 mkdir -p ~/.claude/skills
-cp -r accessible-vibe-coding/skills/accessibility-rules ~/.claude/skills/
-cp -r accessible-vibe-coding/skills/form-rules ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessibility-rules ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/form-rules ~/.claude/skills/
 ```
 
 For a single project instead, swap the destination:
 
 ```bash
 mkdir -p .claude/skills
-cp -r accessible-vibe-coding/skills/accessibility-rules .claude/skills/
-cp -r accessible-vibe-coding/skills/form-rules .claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessibility-rules .claude/skills/
+cp -r Accessible-Vibe-Coding/skills/form-rules .claude/skills/
 ```
 
 ### Install — Windows PowerShell
 
 ```powershell
-git clone https://github.com/jeffbernier/accessible-vibe-coding.git
+git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"
-Copy-Item -Recurse accessible-vibe-coding\skills\accessibility-rules "$env:USERPROFILE\.claude\skills\"
-Copy-Item -Recurse accessible-vibe-coding\skills\form-rules "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse Accessible-Vibe-Coding\skills\accessibility-rules "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse Accessible-Vibe-Coding\skills\form-rules "$env:USERPROFILE\.claude\skills\"
 ```
 
 ### No clone, just the files
@@ -84,7 +84,7 @@ These surfaces take an uploaded skill rather than a filesystem path. Package the
 macOS and Linux:
 
 ```bash
-cd accessible-vibe-coding/skills
+cd Accessible-Vibe-Coding/skills
 zip -r accessibility-rules.zip accessibility-rules
 zip -r form-rules.zip form-rules
 ```
@@ -92,7 +92,7 @@ zip -r form-rules.zip form-rules
 Windows PowerShell:
 
 ```powershell
-cd accessible-vibe-coding\skills
+cd Accessible-Vibe-Coding\skills
 Compress-Archive -Path accessibility-rules -DestinationPath accessibility-rules.zip
 Compress-Archive -Path form-rules -DestinationPath form-rules.zip
 ```
@@ -115,8 +115,8 @@ Copy into `.cursor/rules/` in your project and rename to `.mdc`:
 
 ```bash
 mkdir -p .cursor/rules
-cp accessible-vibe-coding/rules/accessibility-rules.md .cursor/rules/accessibility-rules.mdc
-cp accessible-vibe-coding/rules/form-rules.md .cursor/rules/form-rules.mdc
+cp Accessible-Vibe-Coding/rules/accessibility-rules.md .cursor/rules/accessibility-rules.mdc
+cp Accessible-Vibe-Coding/rules/form-rules.md .cursor/rules/form-rules.mdc
 ```
 
 Then add Cursor's frontmatter at the top of each file. For an always-on ruleset:
@@ -136,8 +136,8 @@ Windsurf reads `.devin/rules/*.md`, with `.windsurf/rules/*.md` still honored as
 
 ```bash
 mkdir -p .devin/rules
-cp accessible-vibe-coding/rules/accessibility-rules.md .devin/rules/
-cp accessible-vibe-coding/rules/form-rules.md .devin/rules/
+cp Accessible-Vibe-Coding/rules/accessibility-rules.md .devin/rules/
+cp Accessible-Vibe-Coding/rules/form-rules.md .devin/rules/
 ```
 
 Windsurf's frontmatter uses `trigger:` rather than Cursor's boolean:
@@ -156,7 +156,7 @@ Copilot reads `.github/copilot-instructions.md` for the whole repo, and `.github
 
 ```bash
 mkdir -p .github
-cat accessible-vibe-coding/rules/accessibility-rules.md >> .github/copilot-instructions.md
+cat Accessible-Vibe-Coding/rules/accessibility-rules.md >> .github/copilot-instructions.md
 ```
 
 For path-scoped coverage, copy it in as its own file and add the `applyTo` glob:
@@ -205,7 +205,7 @@ Pass `skills="all"` to expose everything found on disk. Confirm what loaded by r
 Skills are just files, so updating is a re-copy:
 
 ```bash
-cd accessible-vibe-coding && git pull
+cd Accessible-Vibe-Coding && git pull
 cp -r skills/accessibility-rules ~/.claude/skills/
 cp -r skills/form-rules ~/.claude/skills/
 ```

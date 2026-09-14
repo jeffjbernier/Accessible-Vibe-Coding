@@ -23,7 +23,11 @@ import { fileURLToPath } from 'node:url';
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SKILLS_DIR = join(REPO, 'skills');
 const RULES_DIR = join(REPO, 'rules');
-const BRANCH = 'main';
+
+// GitHub resolves /blob/HEAD/ to whatever the repo's default branch is called,
+// so links in the generated files survive a branch rename and this script does
+// not have to know or guess the branch name.
+const REF = 'HEAD';
 
 const check = process.argv.includes('--check');
 
@@ -133,8 +137,8 @@ function build(name) {
   const file = join(SKILLS_DIR, name, 'SKILL.md');
   const { meta, body: raw } = parseFrontmatter(readFileSync(file, 'utf8'), `skills/${name}/SKILL.md`);
 
-  const source = meta['metadata.source'] || 'https://github.com/jeffbernier/accessible-vibe-coding';
-  const blob = `${source.replace(/\/+$/, '')}/blob/${BRANCH}`;
+  const source = meta['metadata.source'] || 'https://github.com/jeffjbernier/Accessible-Vibe-Coding';
+  const blob = `${source.replace(/\/+$/, '')}/blob/${REF}`;
   const version = meta['metadata.version'] || 'unversioned';
 
   let body = raw;
