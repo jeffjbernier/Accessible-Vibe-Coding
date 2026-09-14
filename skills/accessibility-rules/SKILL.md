@@ -43,7 +43,7 @@ Before generating any UI, confirm:
 ## Perceivable defaults
 
 - All body text meets a minimum contrast ratio of 4.5:1 against its background.
-- Large text (18px+ regular or 14px+ bold) meets 3:1 minimum.
+- Large text (18pt/24px+ regular, or 14pt/~18.66px+ bold) meets 3:1 minimum.
 - Non-text contrast (SC 1.4.11): UI component boundaries, input borders, icons,
   and focus indicators meet 3:1 against adjacent colors.
 - Never use color alone to convey meaning — pair with text, shape, icon, or
