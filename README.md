@@ -4,6 +4,8 @@ Drop-in skills for building accessible software with AI coding assistants.
 
 AI assistants will happily generate a `<div onClick>` and call it a button. They will invent ARIA that makes things worse. They will strip your focus outlines because it "looks cleaner." This repo is the correction layer: drop-in skills that constrain what your assistant produces.
 
+It's built around **Claude Code in VS Code**: the skills install as Agent Skills and fire on their own. Using something else? The same rules ship as plain files in `rules/`, and [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md) walks through getting them into Cursor, Windsurf, and GitHub Copilot.
+
 **Target standard:** [WCAG 2.2 Level AA](https://www.w3.org/TR/WCAG22/).
 
 ---
@@ -38,7 +40,14 @@ Plus the same two rulesets as standalone files, in `rules/`:
 
 These are generated from the skills by `tools/build-rules.mjs` — same rules, no frontmatter, every repo-relative path rewritten to an absolute URL so the file still works once you copy it into your own project. The skills are the source of truth; the rules files are a build output.
 
-More is coming — agent definitions and automation guides — but this README only lists what's actually in the repo today.
+And two guides, in `guides/`:
+
+| Guide | What it covers |
+| --- | --- |
+| `guides/using-rules-in-other-tools.md` | Getting the rules files into Cursor, Windsurf, and GitHub Copilot — where each file goes, what frontmatter it needs, which size caps bite, and how to confirm the rules actually fired |
+| `guides/automate-nvda-testing.md` | Driving a live NVDA session from Claude Code to check heading structure, tab order, and field labeling |
+
+More is coming — agent definitions, for one — but this README only lists what's actually in the repo today.
 
 ---
 
@@ -55,7 +64,7 @@ cp -r Accessible-Vibe-Coding/skills/form-rules ~/.claude/skills/
 
 Run `/skills` in Claude Code to confirm both loaded. For project-scoped installs, Windows paths, Claude Desktop and claude.ai uploads, and the Agent SDK, see [INSTALL.md](INSTALL.md).
 
-Not using Claude? Cursor, Windsurf, and Copilot don't load Agent Skills — copy the matching file out of `rules/` instead. [INSTALL.md](INSTALL.md) has the destination path and frontmatter each one expects.
+Not using Claude? Cursor, Windsurf, and Copilot don't load Agent Skills — copy the matching file out of `rules/` instead. [INSTALL.md](INSTALL.md) has the destination path and frontmatter each one expects. For the long version — what each tool does with the file, size caps, and how to verify it fired — read [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md).
 
 ### 2. Build something
 
