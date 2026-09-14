@@ -68,7 +68,7 @@ For each skill it:
 
 1. **Strips the YAML frontmatter.** Rules files carry no frontmatter — each target tool wants its own, and `INSTALL.md` documents what to add for Cursor, Windsurf, and Copilot.
 2. **Promotes `description` into the body.** That field is what makes a skill fire, so it becomes a visible "When this applies" blockquote under the H1. Without it a rules file would ship with nothing telling the assistant when to apply.
-3. **Rewrites repo-relative paths to absolute URLs.** `references/markup.md` and `scripts/*.js` resolve fine inside this repo and point at nothing once someone copies a rules file into their own project, so they become `blob/main` links.
+3. **Rewrites repo-relative paths to absolute URLs.** `references/markup.md` and `scripts/*.js` resolve fine inside this repo and point at nothing once someone copies a rules file into their own project, so they become `blob/HEAD` links — GitHub resolves `HEAD` to whatever the default branch is called, so the links survive a branch rename.
 4. **Adds a do-not-edit banner** naming the source file and the rebuild command.
 
 ---

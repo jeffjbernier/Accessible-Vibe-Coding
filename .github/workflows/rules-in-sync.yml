@@ -1,0 +1,29 @@
+name: rules in sync
+
+# The files under rules/ are generated from skills/*/SKILL.md. If someone
+# edits a skill and forgets to regenerate — or edits a generated file by
+# hand — the two drift and the rules stop matching the skills. This job is
+# what stops that.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - 'skills/**'
+      - 'rules/**'
+      - 'tools/build-rules.mjs'
+      - '.github/workflows/rules-in-sync.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify rules/ matches skills/
+        run: node tools/build-rules.mjs --check
