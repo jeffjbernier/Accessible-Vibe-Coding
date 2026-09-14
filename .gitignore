@@ -1,0 +1,143 @@
+# ---------------------------------------------------------------
+# Secrets — keep this block first. Nothing below matters if a key
+# ships in the initial commit.
+# ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+credentials.json
+secrets.json
+.netrc
+
+# ---------------------------------------------------------------
+# Node
+# ---------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+.npm/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# ---------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+.python-version
+*.egg-info/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# ---------------------------------------------------------------
+# Accessibility and browser test output
+# These are generated artifacts. Commit the scripts, not the reports.
+# ---------------------------------------------------------------
+axe-results/
+a11y-report/
+a11y-results/
+pa11y-report/
+lighthouse-report/
+lighthouse-results/
+*.lighthouse.json
+*.axe.json
+accessibility-report.html
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+/playwright/.cache/
+cypress/screenshots/
+cypress/videos/
+screenshots/
+snapshots/diff/
+*.trace.zip
+
+# ---------------------------------------------------------------
+# Editors and IDEs
+# ---------------------------------------------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-workspace
+
+# ---------------------------------------------------------------
+# AI assistant local state
+# Committed rules and skills are the point of this repo; local
+# session state, caches, and personal overrides are not.
+# ---------------------------------------------------------------
+.claude/settings.local.json
+.claude/local/
+.aider*
+.cursorignore
+.continue/
+
+# ---------------------------------------------------------------
+# Operating system
+# ---------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ---------------------------------------------------------------
+# Misc
+# ---------------------------------------------------------------
+*.log
+logs/
+tmp/
+temp/
+*.bak
+*.orig
