@@ -44,7 +44,7 @@ Against each platform's published limit or guidance:
 
 ## 2. Cursor
 
-### Where the file goes
+### Where the file goes in Cursor
 
 Project rules live in `.cursor/rules/`, and **only `.mdc` files are read**. A `.md` file in that folder is ignored with no error, no warning, and no entry in the rules pane. Renaming on copy is not cosmetic:
 
@@ -104,7 +104,7 @@ The old root-level `.cursorrules` file is still read but on the way out, and the
 
 Windsurf is now Devin Desktop under Cognition, and `docs.windsurf.com` redirects to `docs.devin.ai/desktop/`. The product still works the way you remember; the paths and the docs URL moved.
 
-### Where the file goes
+### Where the file goes in Windsurf
 
 | Path | Status |
 | --- | --- |
