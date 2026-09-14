@@ -125,6 +125,11 @@ Before generating any UI, confirm:
 - Add aria-current="page" to the active link in navigation.
 - For complex widgets, follow WAI-ARIA Authoring Practices patterns exactly —
   don't improvise ARIA role combinations.
+- Worked examples of the patterns above — landmark markup, a dialog, a tab list
+  with roving tabindex, an arrow-key handler, a form field with hint and error,
+  and focus-ring CSS — live in `references/patterns.md`. Read it before building
+  a custom widget. Where an example and a rule in this file disagree, the rule
+  wins.
 
 ## Navigation aids
 

@@ -2,16 +2,27 @@
 
 These are plain [Agent Skills](https://code.claude.com/docs/en/skills) — a folder with a `SKILL.md` inside it. There is no plugin, no marketplace, and nothing to build. You copy a folder into place and Claude picks it up.
 
-Two skills ship here:
+Three skills ship here:
 
-| Skill | What it constrains |
+| Skill | What it does |
 | --- | --- |
-| `accessibility-rules` | Any UI, page, component, or markup the assistant generates |
-| `form-rules` | Forms, form fields, and single-record display pages |
+| `accessibility-rules` | Constrains any UI, page, component, or markup the assistant generates |
+| `form-rules` | Constrains forms, form fields, and single-record display pages |
+| `nvda-scan` | Drives a live NVDA screen-reader session over a page in Chrome. Windows only, and it needs the nvda-mcp server from [guides/automate-nvda-testing.md](guides/automate-nvda-testing.md) before it can connect |
 
-They work independently. Install one or both.
+They work independently. Install any or all.
 
-Cursor, Windsurf, and Copilot don't load Agent Skills. For those, the repo ships the same two rulesets as standalone files in `rules/` — see [Cursor, Windsurf, and Copilot](#cursor-windsurf-and-copilot) below.
+Three slash commands ship in `skills/` as well. They are skills too, in the same folder shape, but they carry `disable-model-invocation: true` so they only run when you type them:
+
+| Command | What it does |
+| --- | --- |
+| `/a11y-scan` | Scans a target for WCAG 2.2 AA violations and reports each with a fix |
+| `/aria-fix` | Fixes semantic HTML, ARIA, and keyboard handling in one file |
+| `/a11y-report` | Writes the findings up as a report with remediation code |
+
+Copy them exactly like the other skills. Two agent definitions ship alongside everything; see [Agents](#agents) below.
+
+Cursor, Windsurf, and Copilot don't load Agent Skills. For those, the repo ships the two rulesets as standalone files in `rules/` — see [Cursor, Windsurf, and Copilot](#cursor-windsurf-and-copilot) below. `nvda-scan` has no rules-file form; it only runs inside Claude Code.
 
 ---
 
@@ -46,6 +57,14 @@ cp -r Accessible-Vibe-Coding/skills/accessibility-rules .claude/skills/
 cp -r Accessible-Vibe-Coding/skills/form-rules .claude/skills/
 ```
 
+`nvda-scan` is Windows-only, so it is left out of these two blocks. The PowerShell block below includes it. The slash commands copy the same way; add a line per command you want:
+
+```bash
+cp -r Accessible-Vibe-Coding/skills/a11y-scan ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/aria-fix ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/a11y-report ~/.claude/skills/
+```
+
 ### Install — Windows PowerShell
 
 ```powershell
@@ -53,15 +72,18 @@ git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"
 Copy-Item -Recurse Accessible-Vibe-Coding\skills\accessibility-rules "$env:USERPROFILE\.claude\skills\"
 Copy-Item -Recurse Accessible-Vibe-Coding\skills\form-rules "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse Accessible-Vibe-Coding\skills\nvda-scan "$env:USERPROFILE\.claude\skills\"
 ```
+
+Skip the last line if you don't run NVDA. The skill loads either way, but it can't do anything until the MCP server in [guides/automate-nvda-testing.md](guides/automate-nvda-testing.md) is registered.
 
 ### No clone, just the files
 
-Download the repo as a ZIP from GitHub, expand it, and drag the `accessibility-rules` and `form-rules` folders out of `skills/` and into `~/.claude/skills/` (or `%USERPROFILE%\.claude\skills\`). Same result.
+Download the repo as a ZIP from GitHub, expand it, and drag the skill folders you want out of `skills/` and into `~/.claude/skills/` (or `%USERPROFILE%\.claude\skills\`). Same result.
 
 ### Verify
 
-Run `/skills` in Claude Code. Both skills should appear with their descriptions and the path they loaded from. No restart needed — Claude Code reads the skills directory on demand, so a freshly copied folder shows up in the session you're already in.
+Run `/skills` in Claude Code. Every skill you copied should appear with its description and the path it loaded from. The slash commands also show up in the `/` menu as you type. No restart needed — Claude Code reads the skills directory on demand, so a freshly copied folder shows up in the session you're already in.
 
 If a skill is missing, check that the path is `<skill-name>/SKILL.md` with the file named in caps, and that the frontmatter opens on line 1 with `---`.
 
@@ -74,6 +96,68 @@ If the same skill name exists in more than one place, Claude Code resolves in th
 3. Project (`.claude/skills/`)
 
 Local skills also win over plugin-provided and account-synced skills of the same name. So a project copy will not silently override your personal copy — if you edit one, edit the one that's actually winning.
+
+### Making the rules a gate
+
+Installed as a skill, `accessibility-rules` is advisory: Claude loads it when it judges the task to be UI work, which is most of the time but not all of it. Two lines in `CLAUDE.md` turn it into a gate.
+
+**1. Load the rules on every turn.** Copy the generated rules file next to your `CLAUDE.md` and import it:
+
+```bash
+mkdir -p ~/.claude/rules
+cp Accessible-Vibe-Coding/rules/accessibility-rules.md ~/.claude/rules/
+```
+
+Then add one line to `~/.claude/CLAUDE.md`:
+
+```markdown
+@rules/accessibility-rules.md
+```
+
+The `@` import resolves relative to the `CLAUDE.md` that contains it, so the same line works in a project `CLAUDE.md` with the file at `<repo>/rules/accessibility-rules.md`. The cost is real: the file is about 17 KB, roughly 4,000 tokens on every turn. If that matters, skip this step and rely on the skill firing.
+
+**2. Put it in the definition of done.** Wherever your `CLAUDE.md` says what "done" means, add:
+
+```markdown
+- For any user-facing UI change: `axe-check.js` reports zero WCAG 2.2 AA
+  violations, and a keyboard-only pass of the affected flow succeeds (every
+  control reachable by Tab, operable by Enter, Space, or arrows, focus visible
+  throughout).
+```
+
+`axe-check.js` ships inside the skill at `skills/accessibility-rules/scripts/`. It takes a URL or a local HTML file, defaults to the WCAG 2.2 AA rule set, and exits non-zero on violations. It needs `playwright` and `axe-core` installed in the project being scanned.
+
+With both lines in place, Claude reads the rules whether or not it decides the task is UI work, and cannot report a UI change as finished without running the check.
+
+---
+
+## Agents
+
+Two agent definitions ship in `agents/`. They are plain markdown files with frontmatter, one per agent, and Claude Code loads them from either scope:
+
+| Scope | Location |
+| --- | --- |
+| Personal | `~/.claude/agents/<name>.md` |
+| Project | `<repo>/.claude/agents/<name>.md` |
+
+```bash
+mkdir -p ~/.claude/agents
+cp Accessible-Vibe-Coding/agents/accessibility-specialist.md ~/.claude/agents/
+cp Accessible-Vibe-Coding/agents/ux-design-agent.md ~/.claude/agents/
+```
+
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\agents"
+Copy-Item Accessible-Vibe-Coding\agents\*.md "$env:USERPROFILE\.claude\agents\"
+```
+
+Run `/agents` to confirm they loaded. Claude picks one on its own when a task matches its description, or you can name it: "use the ux-design-agent to review the checkout page."
+
+Neither file sets `model`, so each agent inherits the model your session is running. Add a `model:` line to the frontmatter if you want one pinned; the accepted values are in the [Claude Code subagent docs](https://code.claude.com/docs/en/sub-agents).
+
+`ux-design-agent` has no `Write` or `Edit` in its tool list on purpose. It reports; it never changes code. Keep it that way if you fork it.
 
 ---
 
@@ -208,6 +292,7 @@ Skills are just files, so updating is a re-copy:
 cd Accessible-Vibe-Coding && git pull
 cp -r skills/accessibility-rules ~/.claude/skills/
 cp -r skills/form-rules ~/.claude/skills/
+cp agents/*.md ~/.claude/agents/
 ```
 
 For a rules-file install, re-copy from `rules/` into whichever destination you used above.

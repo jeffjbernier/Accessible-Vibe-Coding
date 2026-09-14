@@ -53,6 +53,10 @@ const rewrites = {
       '  This skill bundles one — `scripts/axe-check.js`, which drives axe-core over a\n  URL or a local HTML file:',
       `  The accessible-vibe-coding repo ships one — [axe-check.js](${blob}/skills/accessibility-rules/scripts/axe-check.js),\n  which drives axe-core over a URL or a local HTML file:`,
     ],
+    [
+      'live in `references/patterns.md`. Read it before building',
+      `live in [references/patterns.md](${blob}/skills/accessibility-rules/references/patterns.md). Read it before building`,
+    ],
   ],
   'form-rules': (blob) => [
     [
@@ -199,9 +203,15 @@ function build(name) {
   return out;
 }
 
+// Skills that are procedures rather than rulesets — slash commands a person
+// types, or a skill that drives a live tool such as NVDA — have no meaning as
+// an always-apply rules file for Cursor or Copilot. They ship as skills only.
+const NO_RULES_FILE = new Set(['a11y-report', 'a11y-scan', 'aria-fix', 'nvda-scan']);
+
 const names = readdirSync(SKILLS_DIR, { withFileTypes: true })
   .filter((e) => e.isDirectory() && existsSync(join(SKILLS_DIR, e.name, 'SKILL.md')))
   .map((e) => e.name)
+  .filter((name) => !NO_RULES_FILE.has(name))
   .sort();
 
 if (!names.length) {

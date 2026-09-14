@@ -176,30 +176,39 @@ Worth checking deliberately on a form-heavy page:
 
 ## 9. Saving the scan as a skill
 
-To avoid retyping the prompt, save it as an Agent Skill. Create this file in the project you are testing:
+The prompt above works, but a bare prompt has no guardrails, and this scan needs them. Every key nvda-mcp sends lands in whatever window has focus. If that is your editor instead of Chrome, a batch of `H` presses types "hhhh" into a file, and an `F5` starts the debugger. The repo ships a skill that encodes what we learned the hard way:
 
 ```text
-.claude/skills/nvda-scan/SKILL.md
+skills/nvda-scan/
+├── SKILL.md
+└── scripts/activate-chrome.ps1
 ```
 
-With these contents:
+The script ships with the skill. The copy command below brings it along, and there is nothing to create or install. It runs under Windows PowerShell 5.1 or PowerShell 7 with no admin rights; the first run compiles a small C# helper with `Add-Type`, which takes a second or two. It calls Win32 APIs directly, so it is Windows-only, which matches NVDA. If you adapt this approach to another screen reader on another OS (VoiceOver on macOS, Orca on Linux), you will need to write your own equivalent that brings the browser to the foreground and confirms it got there, using that OS's own tools.
 
-```markdown
----
-name: nvda-scan
-description: Runs an NVDA screen-reader scan of the currently-focused web page — checks heading structure via browse mode, then tabs through form fields reporting exactly what NVDA announces for each (label, required status, field type). Flags anything unclear or unlabeled. Invoke with /nvda-scan once NVDA and the page under test are ready.
----
+What the skill adds over the prompt:
 
-Connect to NVDA at 127.0.0.1 port 6837. Navigate the currently-focused page
-starting with browse-mode headings (H key) to check the structure, then tab
-through the form under test field by field and report exactly what NVDA
-announces for each — label, whether it is marked required, and field type.
-Flag anything unclear or unlabeled.
+- **Focus proof before every batch.** `activate-chrome.ps1` hands focus to Chrome through `AttachThreadInput` and exits non-zero if Chrome does not end up in the foreground. The skill then sends `NVDA+T` alone and reads the window title back before any other key. Both checks have to pass.
+- **Browse-mode proof before any letter.** Quick-nav letters (`H`, `D`, `R`) are text if NVDA is in focus mode. The skill sends `Control+Home` first and waits for the skip link.
+- **Small batches.** At most six keys per call, and never more `Tab`s than stops remain, because a Tab past the last link leaves the page for Chrome's toolbar.
+- **A never-send list.** `F5`, `Enter`, `Escape`, `Alt+Tab`, and arrows are off the table. The skill asks you to press them yourself.
+- **A fixed report shape** — flags first, then the heading outline, the tab order verbatim, and radio and checkbox groups read one item at a time.
+
+Install it the same way as the other skills:
+
+```bash
+cp -r Accessible-Vibe-Coding/skills/nvda-scan ~/.claude/skills/
 ```
 
-Run `/nvda-scan` in a Claude Code session in that project, with the page focused and NVDA listening, to trigger the full scan.
+Or into the project's `.claude/skills/` to commit it alongside the code. See [INSTALL.md](../INSTALL.md) for how the two scopes differ.
 
-Placing the file under the project's `.claude/skills/` makes it project-scoped, so it can be committed alongside the rest of the code and shared with the team. For a copy available in every project, save the same file to `~/.claude/skills/nvda-scan/SKILL.md` instead. See [INSTALL.md](../INSTALL.md) for how the two scopes differ.
+Then, with NVDA listening and the page open in Chrome, name the page when you invoke it:
+
+> Use the nvda-scan skill on the Donate page.
+
+The page name is what the activation script matches against Chrome's window title. If you leave it out, the skill asks before sending a key.
+
+The skill is Windows-only, like NVDA. It does not generate a `rules/` file, because there is nothing for Cursor or Copilot to do with it.
 
 ---
 
@@ -211,7 +220,7 @@ Placing the file under the project's `.claude/skills/` makes it project-scoped, 
 - New or edited project-scoped servers need an approval prompt — run `/mcp` in a fresh session — before they will connect. A dismissed prompt appears as "Rejected" and is cleared through `settings.local.json` or `claude mcp reset-project-choices`.
 - `claude --debug=mcp` plus the log in `%USERPROFILE%\.claude\debug\` is the only reliable way to see the real spawn error. The normal session reports only "Failed to reconnect."
 - A hung terminal after running `uv run nvda-mcp` by hand is expected, not a failure.
-- nvda-mcp sends keystrokes to whatever has focus. Open and focus the page under test yourself before starting a scan.
+- nvda-mcp sends keystrokes to whatever has focus. With the bare prompt from Section 8, open and focus the page under test yourself before starting a scan. The `nvda-scan` skill does this for you through `activate-chrome.ps1` and confirms it with `NVDA+T` before sending anything else.
 - This is a triage tool, not an accessibility audit. Re-read the limitations at the top of this guide before treating a clean result as "accessible" or citing it as compliance evidence.
 
 ---

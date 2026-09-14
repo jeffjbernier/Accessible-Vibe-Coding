@@ -98,6 +98,12 @@ Create `skills/<name>/SKILL.md` with the same frontmatter shape the existing two
 
 If the new skill references its own `scripts/` or `references/` files, add a `rewrites` entry for each before the first build; the dangling-path check will fail until you do.
 
+If the skill is a procedure rather than a ruleset — a slash command someone types, like `a11y-scan`, or a skill that drives a live tool, like `nvda-scan` — add its name to `NO_RULES_FILE` in `tools/build-rules.mjs` instead. No rules file is generated for it, and CI does not expect one. Slash commands also set `disable-model-invocation: true` in their frontmatter so they never fire on their own and never compete with `accessibility-rules` for a trigger.
+
+## Adding an agent
+
+Agent definitions live in `agents/<name>.md`, one file each, with `name`, `description`, and `tools` in the frontmatter. Leave `model` out so the agent inherits whatever the user's session runs; a pinned model name goes stale. A reviewer agent should not have `Write` or `Edit` in its tool list. The generator ignores `agents/`.
+
 ---
 
 ## Repo conventions

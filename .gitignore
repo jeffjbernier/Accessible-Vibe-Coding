@@ -72,7 +72,7 @@ coverage.xml
 # These are generated artifacts. Commit the scripts, not the reports.
 # ---------------------------------------------------------------
 axe-results/
-a11y-report/
+/a11y-report/
 a11y-results/
 pa11y-report/
 lighthouse-report/

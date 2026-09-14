@@ -22,23 +22,32 @@ You do not need to be an accessibility expert to use this. That's the point.
 
 ## What's in here
 
-Two skills, in `skills/`:
+Three skills, in `skills/`:
 
-| Skill | What it constrains |
+| Skill | What it does |
 | --- | --- |
-| `accessibility-rules` | Any UI, page, component, or markup the assistant generates — contrast, semantics, keyboard and focus, ARIA, motion, media, cognitive load |
-| `form-rules` | Forms, form fields, and single-record display pages — grid, tokens, field anatomy, validation, and the error pattern |
+| `accessibility-rules` | Constrains any UI, page, component, or markup the assistant generates — contrast, semantics, keyboard and focus, ARIA, motion, media, cognitive load |
+| `form-rules` | Constrains forms, form fields, and single-record display pages — grid, tokens, field anatomy, validation, and the error pattern |
+| `nvda-scan` | Drives a live NVDA session over the page open in Chrome and reports what a screen-reader user actually hears for every heading and form control. Windows only; needs the setup in the NVDA guide below |
 
-They overlap on purpose. Where the two disagree about a form, `form-rules` wins.
+The first two overlap on purpose. Where they disagree about a form, `form-rules` wins.
 
-Plus the same two rulesets as standalone files, in `rules/`:
+Three slash commands, also in `skills/`. These only run when you type them:
+
+| Command | What it does |
+| --- | --- |
+| `/a11y-scan [target]` | Scans a file, directory, URL, or the whole project for WCAG 2.2 AA violations and reports each with its criterion, location, and a fix. Runs axe-core too when given a URL or HTML file |
+| `/aria-fix [file]` | Fixes semantic HTML, ARIA, keyboard handling, and form labeling in one file, native elements first, and lists every change by line |
+| `/a11y-report [path]` | Writes the findings up as a report grouped by WCAG principle with severity, who is affected, and corrected code. No compliance score, on purpose |
+
+Plus the two rulesets as standalone files, in `rules/`:
 
 | File | For |
 | --- | --- |
 | `rules/accessibility-rules.md` | Cursor, Windsurf, Copilot, and anything else that reads a rules file rather than an Agent Skill |
 | `rules/form-rules.md` | The same, for forms |
 
-These are generated from the skills by `tools/build-rules.mjs` — same rules, no frontmatter, every repo-relative path rewritten to an absolute URL so the file still works once you copy it into your own project. The skills are the source of truth; the rules files are a build output.
+These are generated from the skills by `tools/build-rules.mjs` — same rules, no frontmatter, every repo-relative path rewritten to an absolute URL so the file still works once you copy it into your own project. The skills are the source of truth; the rules files are a build output. The slash commands and `nvda-scan` have no rules files, because they are procedures rather than constraints on output.
 
 And two guides, in `guides/`:
 
@@ -47,7 +56,16 @@ And two guides, in `guides/`:
 | `guides/using-rules-in-other-tools.md` | Getting the rules files into Cursor, Windsurf, and GitHub Copilot — where each file goes, what frontmatter it needs, which size caps bite, and how to confirm the rules actually fired |
 | `guides/automate-nvda-testing.md` | Driving a live NVDA session from Claude Code to check heading structure, tab order, and field labeling |
 
-More is coming — agent definitions, for one — but this README only lists what's actually in the repo today.
+And two agent definitions, in `agents/`:
+
+| Agent | What it does |
+| --- | --- |
+| `accessibility-specialist` | Hands-on: builds or fixes a component to WCAG 2.2 AA, wires up ARIA on custom widgets, clears an axe-core report. Can edit files |
+| `ux-design-agent` | Read-only reviewer. Reads HTML, JSX, and CSS and reports accessibility, hierarchy, typography, color, spacing, and responsiveness problems with a file, line, and fix for each. Never edits |
+
+Neither pins a model, so each inherits whatever your session is running. [INSTALL.md](INSTALL.md) covers where they go.
+
+This README only lists what's actually in the repo today.
 
 ---
 
@@ -63,6 +81,8 @@ cp -r Accessible-Vibe-Coding/skills/form-rules ~/.claude/skills/
 ```
 
 Run `/skills` in Claude Code to confirm both loaded. For project-scoped installs, Windows paths, Claude Desktop and claude.ai uploads, and the Agent SDK, see [INSTALL.md](INSTALL.md).
+
+On Windows with NVDA installed, `nvda-scan` copies the same way. It needs an MCP server registered first — [guides/automate-nvda-testing.md](guides/automate-nvda-testing.md) walks through it.
 
 Not using Claude? Cursor, Windsurf, and Copilot don't load Agent Skills — copy the matching file out of `rules/` instead. [INSTALL.md](INSTALL.md) has the destination path and frontmatter each one expects. For the long version — what each tool does with the file, size caps, and how to verify it fired — read [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md).
 
