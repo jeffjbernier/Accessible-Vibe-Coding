@@ -107,7 +107,7 @@ A skill uploaded this way syncs to your account, which means it also reaches Cow
 
 These tools read a rules file, not a skill. `rules/accessibility-rules.md` and `rules/form-rules.md` hold the same content as the skills with the frontmatter stripped and every repo-relative path rewritten to an absolute URL, so they keep working once copied out of this repo.
 
-The body is the same everywhere. What changes is the destination and the frontmatter you put on top.
+The body is the same everywhere. What changes is the destination and the frontmatter you put on top. This section is the short version. For what each tool actually does with the file, the size caps that silently truncate it, and how to confirm it fired, read [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md).
 
 ### Cursor
 
