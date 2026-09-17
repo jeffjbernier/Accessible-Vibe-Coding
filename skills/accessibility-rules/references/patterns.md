@@ -1,8 +1,8 @@
 # Accessibility patterns
 
 Worked examples for the rules in `SKILL.md`: landmark markup, a dialog, a tab
-list with roving tabindex, an arrow-key handler, a form field with hint and
-error, and focus-ring CSS. Copy the shape, not the content. Where an example
+list with roving tabindex, the combobox pattern, an arrow-key handler, a form
+field with hint and error, and focus-ring CSS. Copy the shape, not the content. Where an example
 here and a rule in `SKILL.md` disagree, the rule wins.
 
 The React examples use JSX because that is where assistants most often invent
@@ -103,6 +103,18 @@ function Tabs({ tabs, activeIndex, onChange }) {
 }
 ```
 
+### Combobox (autocomplete)
+
+- Use `role="combobox"` on the input, with `aria-expanded`, `aria-controls`
+  pointing at the `role="listbox"` popup, and `aria-activedescendant` naming
+  the highlighted `role="option"`.
+- Announce the result count through a polite live region
+  (`role="status"`), not through the input itself.
+- Arrow keys move through options, Enter selects, Escape closes the popup and
+  keeps focus in the input.
+- Follow the [WAI-ARIA combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/)
+  exactly; do not improvise the role combination.
+
 ## Keyboard Navigation
 
 ```tsx
@@ -143,25 +155,28 @@ All interactive elements must be reachable via keyboard. Tab for focus navigatio
 ## Form Accessibility
 
 ```tsx
-function SignupForm() {
+function SignupForm({ errors }) {
+  const emailError = errors.email;
+
   return (
-    <form aria-labelledby="form-title" noValidate>
+    <form aria-labelledby="form-title" method="post" noValidate>
       <h2 id="form-title">Create Account</h2>
 
       <div>
         <label htmlFor="email">Email address</label>
+        <p id="email-hint">We will never share your email.</p>
         <input
           id="email"
+          name="email"
           type="email"
+          autoComplete="email"
           required
-          aria-required="true"
-          aria-describedby="email-hint email-error"
-          aria-invalid={hasError ? "true" : undefined}
+          aria-describedby={emailError ? "email-hint email-error" : "email-hint"}
+          aria-invalid={emailError ? "true" : undefined}
         />
-        <p id="email-hint">We will never share your email.</p>
-        {hasError && (
-          <p id="email-error" role="alert">
-            Please enter a valid email address.
+        {emailError && (
+          <p id="email-error" className="field-error">
+            Enter an email address in the format name@example.org
           </p>
         )}
       </div>
@@ -171,6 +186,13 @@ function SignupForm() {
   );
 }
 ```
+
+The inline error has no `role="alert"` on purpose. On a failed submit, the
+announcement comes from the error summary at the top of the form, which takes
+focus. An alert on every field makes the screen reader read each error over
+the others. The summary, the grid, and the full error pattern are defined in
+the `form-rules` skill (§7, and `references/markup.md`), which wins wherever
+this example is thinner.
 
 ## Color and Contrast
 
@@ -198,24 +220,3 @@ function SignupForm() {
 ```
 
 WCAG AA requires 4.5:1 contrast for normal text, 3:1 for large text (18pt/24px+ regular, or 14pt/~18.66px+ bold).
-
-## Anti-Patterns
-
-- Using `div` and `span` for clickable elements instead of `button` or `a`
-- Using an ARIA role that is not appropriate for the element (e.g., `role="button"` on a `<div>` or `role="button"` on an `<a>`)
-- Removing focus outlines without providing an alternative indicator
-- Relying on color alone to convey information (red for error, green for success)
-- Using `aria-label` when visible text already labels the element
-- Auto-playing media without a pause mechanism
-- Missing skip navigation link for keyboard users
-
-## Checklist
-
-- [ ] All interactive elements keyboard-accessible (Tab, Enter, Escape, Arrows)
-- [ ] Semantic HTML landmarks used (`nav`, `main`, `article`, `section`)
-- [ ] Images have descriptive `alt` text (or `alt=""` for decorative)
-- [ ] Color contrast meets WCAG AA (4.5:1 normal text, 3:1 large text)
-- [ ] Focus indicators visible on all interactive elements
-- [ ] Form inputs have associated `<label>` elements
-- [ ] Error messages announced to screen readers via `role="alert"`
-- [ ] Page tested with screen reader (VoiceOver, NVDA) and keyboard only
