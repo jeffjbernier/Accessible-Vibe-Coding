@@ -36,7 +36,7 @@ Three slash commands, also in `skills/`. These only run when you type them:
 
 | Command | What it does |
 | --- | --- |
-| `/a11y-scan [target]` | Scans a file, directory, URL, or the whole project for WCAG 2.2 AA violations and reports each with its criterion, location, and a fix. Runs axe-core too when given a URL or HTML file |
+| `/a11y-scan [target]` | Scans a file, directory, URL, or the whole project for WCAG 2.2 AA violations and reports each with its criterion, location, and a fix. Runs axe-core too when given a URL or HTML file, and `form-check.js` when the page has a form or form controls |
 | `/aria-fix [file]` | Fixes semantic HTML, ARIA, keyboard handling, and form labeling in one file, native elements first, and lists every change by line |
 | `/a11y-report [path]` | Writes the findings up as a report grouped by WCAG principle with severity, who is affected, and corrected code. No compliance score, on purpose |
 

@@ -1,12 +1,12 @@
 ---
 name: a11y-scan
-description: Scan a component, page, directory, or the whole project for WCAG 2.2 AA violations and report each one with its success criterion, location, and a fix. Reads the markup directly, and runs axe-core as well when given a URL or an HTML file.
+description: Scan a component, page, directory, or the whole project for WCAG 2.2 AA violations and report each one with its success criterion, location, and a fix. Reads the markup directly, and runs axe-core as well when given a URL or an HTML file, plus form-check.js when the page has a form or form controls.
 argument-hint: [file, directory, or URL; empty scans the whole project]
 disable-model-invocation: true
 allowed-tools: Read Grep Glob Bash(node *)
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 1.1.0
   source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
@@ -20,17 +20,27 @@ every template, component, and HTML file in the project.
 1. **Identify the target.** A file, a directory, a URL, or the whole project.
    For a directory or the project, Glob for `*.html`, `*.jsx`, `*.tsx`, `*.vue`,
    `*.svelte`, `*.php`, `*.erb`, `*.twig`, `*.blade.php`, and `*.astro`.
-2. **Run axe-core if you can.** When the target is a URL or an HTML file and the
-   `accessibility-rules` skill is installed, run its bundled checker and fold
-   the results into the report:
+2. **Run the bundled checkers if you can.** When the target is a URL or an
+   HTML file, run whichever of these is installed and fold the results into
+   the report:
 
    ```bash
    node ~/.claude/skills/accessibility-rules/scripts/axe-check.js <target>
+   node ~/.claude/skills/form-rules/scripts/form-check.js <target>
    ```
 
-   Use `.claude/skills/...` instead if the skill is project-scoped. It needs
-   `playwright` and `axe-core` installed in the project; if they are missing,
-   say so and continue with the static pass. Never install them yourself.
+   `axe-check.js` runs axe-core. `form-check.js` catches what axe passes on
+   forms: placeholder-only labels, fake buttons, unnamed forms, dangling
+   `aria-describedby`, positive `tabindex`, missing `autocomplete`. Run it
+   when the page has a form or form controls. It cites `form-rules` sections
+   rather than WCAG criteria, so add the matching success criterion to each
+   of its findings as you fold it in.
+
+   Use `.claude/skills/...` instead if a skill is project-scoped. Exit 1 from
+   either script means it found problems, not that it crashed; exit 2 means
+   it could not run. Both need `playwright` installed in the project, and
+   `axe-check.js` needs `axe-core` too; if they are missing, say so and
+   continue with the static pass. Never install them yourself.
 3. **Read the markup** and check each principle:
    - **Perceivable.** Images without `alt`; meaningful images with `alt=""`;
      video without captions; audio without a transcript; text that fails
@@ -38,7 +48,10 @@ every template, component, and HTML file in the project.
      meaning carried by color alone.
    - **Operable.** Click handlers on `<div>` or `<span>`; missing or removed
      focus indicators; no skip link; positive `tabindex`; modals that do not
-     trap focus or close on Escape; touch targets under 44×44 CSS pixels.
+     trap focus or close on Escape; pointer targets under 24×24 CSS pixels
+     (2.5.8, AA; inline links in running text are exempt); outside a form,
+     also targets under 44×44 (2.5.5, AAA, this ruleset's default). Inside a
+     form the `form-rules` 24×24 gate is the only one that applies.
    - **Understandable.** Inputs without a visible associated `<label>`;
      placeholder used as the only label; error messages not tied to their
      field with `aria-describedby`; no `lang` on `<html>`; navigation that
@@ -70,6 +83,10 @@ WCAG A (must fix):
 
 WCAG AA (should fix):
   - <file>:<line> — contrast 3.2:1, needs 4.5:1 (1.4.3)
+      fix: <snippet>
+
+WCAG AAA (this ruleset's default, not an AA failure):
+  - <file>:<line> — <element> is 32×32, under the 44×44 default (2.5.5)
       fix: <snippet>
 
 Passing:
