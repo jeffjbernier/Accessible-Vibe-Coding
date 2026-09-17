@@ -24,12 +24,12 @@ Four things are true on every platform in this guide. Read them before you spend
 
 ## 1. The two files, and their size
 
-Sizes matter here in a way they don't in Claude Code, so start with the numbers. These are for v1.0.0; re-check after a `git pull` with `wc -c rules/*.md`. That counts bytes rather than characters, which overcounts these files slightly — it errs toward the safe side of a character cap.
+Sizes matter here in a way they don't in Claude Code, so start with the numbers. These drift whenever the skills change; re-check after a `git pull` with `wc -c rules/*.md`. That counts bytes rather than characters, which overcounts these files slightly — it errs toward the safe side of a character cap.
 
 | File | Characters | Lines |
 | --- | --- | --- |
-| `rules/accessibility-rules.md` | ~16,700 | 366 |
-| `rules/form-rules.md` | ~21,100 | 443 |
+| `rules/accessibility-rules.md` | ~17,200 | 370 |
+| `rules/form-rules.md` | ~21,100 | 442 |
 
 Against each platform's published limit or guidance:
 
@@ -129,24 +129,27 @@ The four values are `always_on`, `glob` (which also needs a `globs:` line), `mod
 
 ### The 12,000-character cap — both files need splitting
 
-This is the one real obstacle in this guide. Windsurf caps each workspace rule file at 12,000 characters. `accessibility-rules.md` is ~16,700 and `form-rules.md` is ~21,100. Over the cap, the tail is not honored, and nothing tells you which half the model got.
+This is the one real obstacle in this guide. Windsurf caps each workspace rule file at 12,000 characters. `accessibility-rules.md` is ~17,200 and `form-rules.md` is ~21,100. Over the cap, the tail is not honored, and nothing tells you which half the model got.
 
-Split each at a section boundary, repeating the header block so part two still carries its own "when this applies" framing. For v1.0.0:
+Split each at a section boundary, repeating the header block so part two still carries its own "when this applies" framing:
 
 ```bash
 mkdir -p .devin/rules
 R=Accessible-Vibe-Coding/rules
 
-sed -n '1,254p' $R/accessibility-rules.md > .devin/rules/accessibility-rules-1.md
-{ sed -n '1,33p'  $R/accessibility-rules.md
-  sed -n '255,$p' $R/accessibility-rules.md; } > .devin/rules/accessibility-rules-2.md
+split_rules() {  # <rules file name> <heading that starts part two>
+  src=$R/$1.md
+  at=$(grep -n -m1 "^## $2" "$src" | cut -d: -f1)
+  head_end=$(( $(grep -n -m1 '^## ' "$src" | cut -d: -f1) - 1 ))
+  sed -n "1,$((at - 1))p" "$src" > .devin/rules/$1-1.md
+  { sed -n "1,${head_end}p" "$src"; sed -n "${at},\$p" "$src"; } > .devin/rules/$1-2.md
+}
 
-sed -n '1,269p' $R/form-rules.md > .devin/rules/form-rules-1.md
-{ sed -n '1,40p'  $R/form-rules.md
-  sed -n '270,$p' $R/form-rules.md; } > .devin/rules/form-rules-2.md
+split_rules accessibility-rules 'Media and captions'
+split_rules form-rules '8\. '
 ```
 
-That puts the split before "Recommend when appropriate" in the accessibility rules, and before section 8 in the forms rules — four files in the 5,300–11,500 character range, each comfortably under the cap.
+That splits the accessibility rules before "Media and captions" and the forms rules before section 8 — four files between roughly 9,200 and 11,500 characters with frontmatter on, each under the cap.
 
 Add `trigger: always_on` frontmatter to all four, then confirm nothing crept over:
 
@@ -154,7 +157,7 @@ Add `trigger: always_on` frontmatter to all four, then confirm nothing crept ove
 wc -c .devin/rules/*.md
 ```
 
-**Those line numbers are pinned to v1.0.0 and will drift** every time the skills change and `rules/` is rebuilt. Don't reuse them blind after a `git pull` — re-run `wc -c`, and if a part is over 12,000, move the split to the previous `##` heading.
+**The split finds each heading by name, so it survives lines moving. It does not survive growth.** Each half of the forms rules sits about 500 bytes under the cap by `wc -c`. Re-run it after every `git pull`. If a part is over 12,000, move that split to an earlier `##` heading or cut a third part. If a heading has been renamed, `sed` prints an error and leaves an empty part one and a header-only part two.
 
 ---
 
@@ -290,7 +293,7 @@ A note on `.mdc` specifically: the frontmatter Cursor expects isn't valid YAML, 
 - Copilot's `applyTo` takes multiple globs comma-separated inside a single quoted string, not as a list.
 - No tool in this guide applies rules to inline ghost-text completions. Chat and agents only.
 - A missing closing `---` on frontmatter means the file doesn't load, on every platform, with no error.
-- The split line numbers in Section 3 are pinned to v1.0.0 and drift on every rebuild. Re-check with `wc -c`.
+- The Windsurf split in Section 3 finds headings by name, not line number, but the files still grow. Re-check with `wc -c` after every rebuild.
 
 ---
 

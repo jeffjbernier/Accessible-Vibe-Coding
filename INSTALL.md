@@ -191,7 +191,7 @@ A skill uploaded this way syncs to your account, which means it also reaches Cow
 
 These tools read a rules file, not a skill. `rules/accessibility-rules.md` and `rules/form-rules.md` hold the same content as the skills with the frontmatter stripped and every repo-relative path rewritten to an absolute URL, so they keep working once copied out of this repo.
 
-The body is the same everywhere. What changes is the destination and the frontmatter you put on top. This section is the short version. For what each tool actually does with the file, the size caps that silently truncate it, and how to confirm it fired, read [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md).
+The body is the same everywhere. What changes is the destination, the frontmatter you put on top, and on Windsurf a split to fit its size cap. This section is the short version. For what each tool actually does with the file, the size caps that silently truncate it, and how to confirm it fired, read [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md).
 
 ### Cursor
 
@@ -216,15 +216,11 @@ Set `alwaysApply: true` for `accessibility-rules`, since the whole point is that
 
 ### Windsurf
 
-Windsurf reads `.devin/rules/*.md`, with `.windsurf/rules/*.md` still honored as a fallback:
+Windsurf reads `.devin/rules/*.md`, with `.windsurf/rules/*.md` still honored as a fallback. It also caps each rule file at 12,000 characters, and both files in `rules/` are over that. A straight copy loads, but the tail of each file is dropped with no warning.
 
-```bash
-mkdir -p .devin/rules
-cp Accessible-Vibe-Coding/rules/accessibility-rules.md .devin/rules/
-cp Accessible-Vibe-Coding/rules/form-rules.md .devin/rules/
-```
+So don't copy these two files as they are. Split each one in two with the commands in [the Windsurf section of the other-tools guide](guides/using-rules-in-other-tools.md#3-windsurf-devin-desktop).
 
-Windsurf's frontmatter uses `trigger:` rather than Cursor's boolean:
+Each of the four resulting files needs Windsurf's frontmatter, which uses `trigger:` rather than Cursor's boolean:
 
 ```markdown
 ---
@@ -257,7 +253,7 @@ Any assistant that accepts a plain markdown instruction file takes these unmodif
 
 ### Keeping them current
 
-The rules files are generated from the skills. Don't edit your copy expecting an update to preserve it, and don't send a pull request against `rules/` — the fix belongs in `skills/<name>/SKILL.md`, which the generator reads. To refresh your copy, `git pull` and re-copy, the same as the skills.
+The rules files are generated from the skills. Don't edit your copy expecting an update to preserve it, and don't send a pull request against `rules/` — the fix belongs in `skills/<name>/SKILL.md`, which the generator reads. To refresh your copy, `git pull` and re-copy, the same as the skills. On Windsurf, re-run the split instead of re-copying.
 
 If you've forked and changed a skill, rebuild before copying out:
 
@@ -295,7 +291,7 @@ cp -r skills/form-rules ~/.claude/skills/
 cp agents/*.md ~/.claude/agents/
 ```
 
-For a rules-file install, re-copy from `rules/` into whichever destination you used above.
+For a rules-file install, re-copy from `rules/` into whichever destination you used above. On Windsurf, re-run the split rather than re-copying.
 
 If you've edited a skill locally, `git pull` won't touch your copy under `~/.claude/skills/` — diff the two before overwriting so you don't lose your changes.
 
