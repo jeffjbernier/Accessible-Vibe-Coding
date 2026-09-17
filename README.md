@@ -61,7 +61,7 @@ And two agent definitions, in `agents/`:
 | Agent | What it does |
 | --- | --- |
 | `accessibility-specialist` | Hands-on: builds or fixes a component to WCAG 2.2 AA, wires up ARIA on custom widgets, clears an axe-core report. Can edit files. Needs both rules skills installed |
-| `ux-design-agent` | Read-only reviewer. Reads HTML, JSX, and CSS and reports accessibility, hierarchy, typography, color, spacing, and responsiveness problems with a file, line, and fix for each. Never edits |
+| `ux-design-agent` | Read-only reviewer. Reads HTML, JSX, and CSS and reports accessibility, hierarchy, typography, color, spacing, and responsiveness problems with a file, line, and fix for each. Never edits. Needs the `accessibility-rules` skill for its accessibility category |
 
 Neither pins a model, so each inherits whatever your session is running. [INSTALL.md](INSTALL.md) covers where they go.
 

@@ -153,7 +153,7 @@ New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\agents"
 Copy-Item Accessible-Vibe-Coding\agents\*.md "$env:USERPROFILE\.claude\agents\"
 ```
 
-`accessibility-specialist` does not carry its own copy of the rules, so install both rules skills before you use it. Its frontmatter lists `accessibility-rules` and `form-rules` under `skills:`, and Claude Code injects the body of each `SKILL.md` when the agent starts. The `references/` and `scripts/` folders are not injected; the agent reads those from the skill folder when it needs them. Claude Code skips a listed skill it can't find and says so only in the debug log, so the agent is written to stop and tell you when either skill is missing.
+`accessibility-specialist` does not carry its own copy of the rules, so install both rules skills before you use it. Its frontmatter lists `accessibility-rules` and `form-rules` under `skills:`, and Claude Code injects the body of each `SKILL.md` when the agent starts. The `references/` and `scripts/` folders are not injected; the agent reads those from the skill folder when it needs them. Claude Code skips a listed skill it can't find and says so only in the debug log, so the agent is written to stop and tell you when either skill is missing. `ux-design-agent` preloads `accessibility-rules` the same way for its accessibility category. Without the skill it says so under that heading and still reviews the other five.
 
 Run `/agents` to confirm they loaded. Claude picks one on its own when a task matches its description, or you can name it: "use the ux-design-agent to review the checkout page."
 
