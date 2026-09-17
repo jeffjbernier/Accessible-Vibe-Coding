@@ -234,6 +234,8 @@ trigger: always_on
 
 The other modes are `model_decision`, `glob` (which also needs a `globs:` pattern), and `manual`. Use `always_on` for accessibility.
 
+**Both files are over Windsurf's 12,000-character limit per rule file.** Copied whole, the end of each file is silently ignored — for `accessibility-rules` that includes the Hard rules and Litmus checks. Split each file at a section boundary before you rely on it; [the Windsurf section of the other-tools guide](guides/using-rules-in-other-tools.md#the-12000-character-cap--both-files-need-splitting) has the exact split commands.
+
 ### GitHub Copilot
 
 Copilot reads `.github/copilot-instructions.md` for the whole repo, and `.github/instructions/*.instructions.md` for path-scoped rules. For repo-wide coverage, append the rules file to the instructions file — Copilot takes plain markdown with no frontmatter there:
