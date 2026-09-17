@@ -14,10 +14,10 @@
 > Also use when a task mentions WCAG, ARIA, contrast, keyboard navigation,
 > focus, screen readers, or touch targets.
 >
-> Always-apply ruleset, generated from the accessibility-rules skill in
-> accessible-vibe-coding v1.1.0. Licensed MIT.
+> Always-apply ruleset, generated from the accessibility-rules skill v1.1.0 in
+> accessible-vibe-coding. Licensed MIT.
 >
-> Source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
+> Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
 
 Every rule in this file is a hard constraint, not a suggestion. Apply all of
 them whenever this file is loaded, whether or not the request mentions

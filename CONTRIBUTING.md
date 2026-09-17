@@ -40,8 +40,8 @@ node tools/build-rules.mjs
 It prints one line per file:
 
 ```text
-wrote rules/accessibility-rules.md (18166 bytes)
-wrote rules/form-rules.md (21084 bytes)
+wrote rules/accessibility-rules.md (<N> bytes)
+wrote rules/form-rules.md (<N> bytes)
 ```
 
 ### Verify without writing

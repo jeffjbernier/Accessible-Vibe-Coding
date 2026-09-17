@@ -167,11 +167,11 @@ function build(name) {
     quote(`**When this applies.** ${meta.description}`),
     '>',
     quote(
-      `Always-apply ruleset, generated from the ${name} skill in accessible-vibe-coding ` +
-        `v${version}. Licensed ${meta.license || 'MIT'}.`
+      `Always-apply ruleset, generated from the ${name} skill v${version} in ` +
+        `accessible-vibe-coding. Licensed ${meta.license || 'MIT'}.`
     ),
     `>`,
-    `> Source: ${source}`,
+    `> Source: <${source}>`,
   ].join('\n');
 
   const at = heading.index + heading[0].length;
@@ -236,7 +236,7 @@ for (const name of names) {
     }
   } else {
     writeFileSync(dest, out);
-    console.log(`wrote rules/${name}.md (${out.length} bytes)`);
+    console.log(`wrote rules/${name}.md (${Buffer.byteLength(out)} bytes)`);
   }
 }
 

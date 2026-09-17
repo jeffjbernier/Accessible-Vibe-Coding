@@ -13,10 +13,10 @@
 > Applies to hand-written and AI-generated code alike, even when the request
 > never mentions layout, grid, tokens, validation, or accessibility.
 >
-> Always-apply ruleset, generated from the form-rules skill in
-> accessible-vibe-coding v1.0.0. Licensed MIT.
+> Always-apply ruleset, generated from the form-rules skill v1.0.0 in
+> accessible-vibe-coding. Licensed MIT.
 >
-> Source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
+> Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
 
 > **What this is.** The single source of truth for how every form and
 > record-display page is built, on both the **admin** and **public** sides of a
