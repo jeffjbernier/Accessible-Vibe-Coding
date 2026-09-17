@@ -3,7 +3,7 @@ name: accessibility-rules
 description: Use when creating or modifying anything a person will see, hear, or operate - a UI, web page, component, prototype, email, or dashboard - or when producing any HTML, CSS, JS, React, or template output, even a small snippet and even when the request never mentions accessibility. Also use when a task mentions WCAG, ARIA, contrast, keyboard navigation, focus, screen readers, or touch targets.
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 1.1.0
   source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
@@ -137,6 +137,9 @@ Before generating any UI, confirm:
   page. Visually hidden by default, visible on keyboard focus, linking to
   `<main>` via its id.
 - On pages with multiple content regions, add secondary skip links.
+- Consistent navigation (SC 3.2.3, 3.2.4): repeated navigation keeps the same
+  relative order on every page, and the same function keeps the same name and
+  icon everywhere.
 
 ## Forms
 
@@ -186,9 +189,18 @@ Before generating any UI, confirm:
   thresholds instead.
 - No auto-playing media. If unavoidable, provide a visible, keyboard-accessible
   pause/stop control.
+- Pause, stop, hide (SC 2.2.2): carousels, tickers, and anything else that
+  moves, blinks, or scrolls for more than five seconds gets a visible,
+  keyboard-accessible control to pause, stop, or hide it. Content that
+  auto-updates (live scores, polling feeds) gets one however briefly it runs,
+  or a control for how often it updates.
 - Support prefers-color-scheme: dark with maintained WCAG AA contrast.
 - Support prefers-contrast: more with increased border widths, solid
   backgrounds, and boosted text weight.
+- Support forced-colors: active (Windows contrast themes, formerly High
+  Contrast). Backgrounds are overridden and box-shadow is removed, so never
+  carry state or a focus ring on either alone. Use borders and outline, which
+  survive.
 
 ## Media and captions
 
@@ -219,6 +231,8 @@ Before generating any UI, confirm:
 - Use aria-live="assertive" / role="alert" only for urgent messages.
 - Announce dynamic content changes to screen readers via live regions — only for
   updates that do not receive focus.
+- Autosuggest and search-as-you-type: announce the number of results through a
+  polite live region as the list updates.
 
 ## Error prevention and timeouts
 
@@ -226,6 +240,8 @@ Before generating any UI, confirm:
   with confirm and cancel options.
 - Confirmation modals trap focus, dismiss with Escape, and return focus to the
   trigger on close.
+- Timing adjustable (SC 2.2.1): no time limits unless essential. Where one
+  exists, let the user turn it off, adjust it, or extend it.
 - Session timeouts warn at least 2 minutes before expiry via role="alert", with
   a control to extend.
 

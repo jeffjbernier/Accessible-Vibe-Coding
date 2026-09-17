@@ -28,7 +28,7 @@ Sizes matter here in a way they don't in Claude Code, so start with the numbers.
 
 | File | Characters | Lines |
 | --- | --- | --- |
-| `rules/accessibility-rules.md` | ~17,200 | 370 |
+| `rules/accessibility-rules.md` | ~18,200 | 386 |
 | `rules/form-rules.md` | ~21,100 | 442 |
 
 Against each platform's published limit or guidance:
@@ -129,7 +129,7 @@ The four values are `always_on`, `glob` (which also needs a `globs:` line), `mod
 
 ### The 12,000-character cap — both files need splitting
 
-This is the one real obstacle in this guide. Windsurf caps each workspace rule file at 12,000 characters. `accessibility-rules.md` is ~17,200 and `form-rules.md` is ~21,100. Over the cap, the tail is not honored, and nothing tells you which half the model got.
+This is the one real obstacle in this guide. Windsurf caps each workspace rule file at 12,000 characters. `accessibility-rules.md` is ~18,200 and `form-rules.md` is ~21,100. Over the cap, the tail is not honored, and nothing tells you which half the model got.
 
 Split each at a section boundary, repeating the header block so part two still carries its own "when this applies" framing:
 
@@ -149,7 +149,7 @@ split_rules accessibility-rules 'Media and captions'
 split_rules form-rules '8\. '
 ```
 
-That splits the accessibility rules before "Media and captions" and the forms rules before section 8 — four files between roughly 9,200 and 11,500 characters with frontmatter on, each under the cap.
+That splits the accessibility rules before "Media and captions" and the forms rules before section 8 — four files between roughly 9,500 and 11,500 characters with frontmatter on, each under the cap.
 
 Add `trigger: always_on` frontmatter to all four, then confirm nothing crept over:
 

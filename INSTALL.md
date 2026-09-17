@@ -114,7 +114,7 @@ Then add one line to `~/.claude/CLAUDE.md`:
 @rules/accessibility-rules.md
 ```
 
-The `@` import resolves relative to the `CLAUDE.md` that contains it, so the same line works in a project `CLAUDE.md` with the file at `<repo>/rules/accessibility-rules.md`. The cost is real: the file is about 17 KB, roughly 4,000 tokens on every turn. If that matters, skip this step and rely on the skill firing.
+The `@` import resolves relative to the `CLAUDE.md` that contains it, so the same line works in a project `CLAUDE.md` with the file at `<repo>/rules/accessibility-rules.md`. The cost is real: the file is about 18 KB, roughly 4,300 tokens on every turn. If that matters, skip this step and rely on the skill firing.
 
 **2. Put it in the definition of done.** Wherever your `CLAUDE.md` says what "done" means, add:
 
