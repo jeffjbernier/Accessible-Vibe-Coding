@@ -43,27 +43,37 @@ server template; the attributes are the point, not the framework.
 </footer>
 ```
 
-Use `<nav>`, `<main>`, `<article>`, `<section>`, `<aside>` instead of `<div>` for landmarks. Screen readers use these to navigate the page.
-
-## ARIA Patterns
+## Dialog and Tabs
 
 ```tsx
+import { useEffect, useId, useRef } from "react";
+
 function Modal({ isOpen, onClose, title, children }) {
-  if (!isOpen) return null;
+  const ref = useRef<HTMLDialogElement>(null);
+  // The dialog stays mounted while closed, so a fixed id would collide as soon
+  // as a page has two modals.
+  const titleId = useId();
+
+  // showModal() traps focus, makes the rest of the page inert, closes on
+  // Escape, and returns focus to the trigger. A <div role="dialog"> does none
+  // of that on its own.
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!dialog) return;
+    if (isOpen && !dialog.open) dialog.showModal();
+    if (!isOpen && dialog.open) dialog.close();
+  }, [isOpen]);
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-      onKeyDown={(e) => e.key === "Escape" && onClose()}
-    >
-      <h2 id="modal-title">{title}</h2>
+    <dialog ref={ref} aria-labelledby={titleId} onClose={onClose}>
+      <h2 id={titleId}>{title}</h2>
       <div>{children}</div>
-      <button onClick={onClose} aria-label="Close dialog">
+      {/* close() fires the dialog's close event, the same path Escape takes,
+          so onClose runs once however the dialog is dismissed. */}
+      <button onClick={() => ref.current?.close()} aria-label="Close dialog">
         <XIcon aria-hidden="true" />
       </button>
-    </div>
+    </dialog>
   );
 }
 
@@ -138,14 +148,23 @@ function handleArrowKeys(
 }
 ```
 
-All interactive elements must be reachable via keyboard. Tab for focus navigation, Enter/Space for activation, Arrow keys for within-component navigation.
-
 ## Form Accessibility
 
 ```tsx
-function SignupForm() {
+// emailError comes from validation and says how to fix the input, e.g.
+// "Enter an email address in the format name@example.org".
+function SignupForm({ emailError }: { emailError?: string }) {
+  // Reference the error id only while the error is rendered, so
+  // aria-describedby never points at an element that is not there.
+  const emailDescribedBy = emailError ? "email-hint email-error" : "email-hint";
+
   return (
-    <form aria-labelledby="form-title" noValidate>
+    <form
+      aria-labelledby="form-title"
+      method="post"
+      action="/signup"
+      noValidate
+    >
       <h2 id="form-title">Create Account</h2>
 
       <div>
@@ -154,14 +173,14 @@ function SignupForm() {
           id="email"
           type="email"
           required
-          aria-required="true"
-          aria-describedby="email-hint email-error"
-          aria-invalid={hasError ? "true" : undefined}
+          autoComplete="email"
+          aria-describedby={emailDescribedBy}
+          aria-invalid={emailError ? "true" : undefined}
         />
         <p id="email-hint">We will never share your email.</p>
-        {hasError && (
-          <p id="email-error" role="alert">
-            Please enter a valid email address.
+        {emailError && (
+          <p id="email-error" className="error-message">
+            {emailError}
           </p>
         )}
       </div>
@@ -176,7 +195,7 @@ function SignupForm() {
 
 ```css
 :root {
-  --text-primary: #1a1a1a;      /* 15.3:1 on white */
+  --text-primary: #1a1a1a;      /* 17.4:1 on white */
   --text-secondary: #595959;    /* 7.0:1 on white */
   --text-on-primary: #ffffff;   /* Ensure 4.5:1 on brand color */
   --border-focus: #0066cc;      /* Visible focus ring */
@@ -196,26 +215,3 @@ function SignupForm() {
   font-weight: bold;
 }
 ```
-
-WCAG AA requires 4.5:1 contrast for normal text, 3:1 for large text (18pt/24px+ regular, or 14pt/~18.66px+ bold).
-
-## Anti-Patterns
-
-- Using `div` and `span` for clickable elements instead of `button` or `a`
-- Using an ARIA role that is not appropriate for the element (e.g., `role="button"` on a `<div>` or `role="button"` on an `<a>`)
-- Removing focus outlines without providing an alternative indicator
-- Relying on color alone to convey information (red for error, green for success)
-- Using `aria-label` when visible text already labels the element
-- Auto-playing media without a pause mechanism
-- Missing skip navigation link for keyboard users
-
-## Checklist
-
-- [ ] All interactive elements keyboard-accessible (Tab, Enter, Escape, Arrows)
-- [ ] Semantic HTML landmarks used (`nav`, `main`, `article`, `section`)
-- [ ] Images have descriptive `alt` text (or `alt=""` for decorative)
-- [ ] Color contrast meets WCAG AA (4.5:1 normal text, 3:1 large text)
-- [ ] Focus indicators visible on all interactive elements
-- [ ] Form inputs have associated `<label>` elements
-- [ ] Error messages announced to screen readers via `role="alert"`
-- [ ] Page tested with screen reader (VoiceOver, NVDA) and keyboard only
