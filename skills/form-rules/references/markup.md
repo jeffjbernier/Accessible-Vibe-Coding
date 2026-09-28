@@ -44,6 +44,7 @@ Contents:
     <input type="email" id="email" name="email" required autocomplete="email"
            aria-describedby="email-hint" value="<?= e($old['email'] ?? '') ?>">
     <p class="field-hint" id="email-hint">
+      <span class="sr-only">Tip: </span>
       We send your confirmation and sign-in link here.
     </p>
   </div>

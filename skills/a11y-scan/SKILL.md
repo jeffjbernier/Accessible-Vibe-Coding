@@ -47,8 +47,9 @@ every template, component, and HTML file in the project.
      4.5:1, or 3:1 for large text (18pt/24px+ regular, or 14pt/~18.66px+ bold);
      meaning carried by color alone.
    - **Operable.** Click handlers on `<div>` or `<span>`; missing or removed
-     focus indicators; no skip link; positive `tabindex`; modals that do not
-     trap focus or close on Escape; pointer targets under 24×24 CSS pixels
+     focus indicators; no skip link; positive `tabindex`; modals that miss
+     any item of the modal contract in the `accessibility-rules` skill
+     ("Modals and dialogs"); pointer targets under 24×24 CSS pixels
      (2.5.8, AA; inline links in running text are exempt); outside a form,
      also targets under 44×44 (2.5.5, AAA, this ruleset's default). Inside a
      form the `form-rules` 24×24 gate is the only one that applies.
