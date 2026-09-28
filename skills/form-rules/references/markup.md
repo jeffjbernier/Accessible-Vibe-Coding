@@ -99,8 +99,9 @@ before the `<form>`:
 <title><?= $errors ? 'Error: ' : '' ?>Contact us</title>
 
 <?php if ($errors): ?>
-  <div class="error-summary" role="alert" tabindex="-1" id="error-summary">
-    <h2>
+  <div class="error-summary" tabindex="-1" id="error-summary"
+       role="group" aria-labelledby="error-summary-title">
+    <h2 id="error-summary-title">
       There's a problem with <?= count($errors) ?>
       <?= count($errors) === 1 ? 'answer' : 'answers' ?>
     </h2>
@@ -125,8 +126,9 @@ before the summary is inserted:
 
 ```html
 <template id="error-summary-template">
-  <div class="error-summary" role="alert" tabindex="-1" id="error-summary">
-    <h2>There's a problem with this form</h2>
+  <div class="error-summary" tabindex="-1" id="error-summary"
+       role="group" aria-labelledby="error-summary-title">
+    <h2 id="error-summary-title">There's a problem with this form</h2>
     <ul></ul>
   </div>
 </template>

@@ -257,8 +257,9 @@ On a failed POST, re-render the page with an error summary **before** the form,
 and move focus to it:
 
 ```html
-<div class="error-summary" role="alert" tabindex="-1" id="error-summary">
-  <h2>There's a problem with 2 answers</h2>
+<div class="error-summary" tabindex="-1" id="error-summary"
+     role="group" aria-labelledby="error-summary-title">
+  <h2 id="error-summary-title">There's a problem with 2 answers</h2>
   <ul>
     <li>
       <a href="#email">Enter an email address in the format name@example.org</a>
@@ -273,6 +274,11 @@ and move focus to it:
 - Server sets focus by rendering `tabindex="-1"` and a tiny inline script (or
   `autofocus`-equivalent) targeting `#error-summary`; with JS off, the summary
   is still first in reading order.
+- **Focus is the only announcement — no `role="alert"`.** An alert fires, then
+  focus lands on the summary and reads it again, so every message is heard
+  twice. The summary is a named group instead: `role="group"` with
+  `aria-labelledby` pointing at its heading, so the focused summary announces
+  its count.
 - The `<title>` is prefixed with `Error:` on an error render so the failure is
   announced on page load.
 
