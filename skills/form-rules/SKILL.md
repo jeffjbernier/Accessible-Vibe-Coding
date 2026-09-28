@@ -3,7 +3,7 @@ name: form-rules
 description: Use when creating or modifying any HTML form, form field, form partial, or form template, on the admin or public side of any app or site, or any page or partial that displays a single database record. Applies to hand-written and AI-generated code alike, even when the request never mentions layout, grid, tokens, validation, or accessibility.
 license: MIT
 metadata:
-  version: 1.1.0
+  version: 1.2.0
   source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
@@ -291,6 +291,38 @@ and move focus to it:
 - **Destructive or financial submissions** (payments, deletions) get a
   review/confirm step (3.3.4).
 
+### 7.4 Conditional regions
+
+The error summary, the save confirmation, and any other region that depends on
+what just happened are **not in the page until it happens**. Never ship them in
+the first render hidden with `hidden` or `display: none`, or as an empty
+heading or list waiting for a script to fill it.
+
+- **Server-rendered:** the template emits the region only on the render where
+  it applies — the error summary on a failed POST, the confirmation on a
+  successful one. Every other render leaves it out entirely.
+- **Client-side enhancement:** keep the region's markup in a `<template>`
+  element, clone it into the page when it applies, and remove it when it no
+  longer applies:
+  - Remove the error summary after a successful submit.
+  - Remove the confirmation when the user goes back to edit.
+  - A repeat submit with errors replaces the old summary — never stack a
+    second one.
+- **No heading without text, ever.** Not a hidden one, and not one the script
+  fills in later. Fill the heading before the region enters the page.
+- Everything in §7.1 still holds for an inserted summary: focus moves to it, it
+  carries `tabindex="-1"`, the `<title>` gains its `Error:` prefix, and each
+  link points at its field's `id`. The reference markup (§4) shows both the
+  server-rendered and the `<template>` version.
+
+Why it matters: `hidden` keeps the region out of the accessibility tree, so
+screen readers stay silent — but checkers that read the HTML, such as WAVE,
+report every empty heading. The protection is also one CSS rule away from
+failing: any `display` value on the container overrides `hidden`, and the
+empty headings appear in every screen reader's headings list with no warning.
+And it drifts from the server path (§1), which never renders a region that
+doesn't apply.
+
 ---
 
 ## 8. Accessibility checklist (per form, gates merge)
@@ -314,6 +346,8 @@ and move focus to it:
 - [ ] `autocomplete` attributes on all personal-data fields (1.3.5).
 - [ ] Error pattern per §7 in place; summary focus verified with a screen
   reader.
+- [ ] No empty or pre-hidden summary/confirmation regions on first load
+  (WAVE: no empty headings) — §7.4.
 - [ ] No motion/animation on validation; respects `prefers-reduced-motion`.
 - [ ] No AI/vibe-coding pitfalls from §11: icon-only controls named, no
   `<div>`/`<span>` fake buttons, no unwarranted `autofocus`, submit never
@@ -459,6 +493,15 @@ reasoning failures.
   or a client-rendered route swaps the form, move focus to that step's heading
   and update the page `<title>` (or an equivalent announcement) so the user
   isn't left focused on a control that no longer exists.
+- **Don't pre-render hidden placeholders for the error summary or
+  confirmation.** Shipping the region on first load with `hidden` and an empty
+  `<h2>` for a script to fill is the shape a show/hide script reaches for
+  first, and it looks harmless: screen readers stay silent, and axe passes it
+  because axe skips what is hidden. It still fails WAVE's empty-heading check,
+  which reads the HTML, and it breaks silently the day a stylesheet gives the
+  container a `display` value — `hidden` is overridden, the empty headings
+  land in every screen reader's headings list, and nothing flags it. Render
+  the region only when it applies, per §7.4.
 - **Never rely on a single sensory characteristic to identify a field or
   instruction** — "the field on the right," "the green button" — pair any such
   reference with text (1.3.3).
