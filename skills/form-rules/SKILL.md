@@ -366,8 +366,9 @@ machine:
 It catches what axe passes — placeholder-as-label, fake `<div>` buttons,
 disabled submits, unnamed forms, missing `autocomplete`, ungrouped radios,
 dangling `aria-describedby`, positive `tabindex`, sub-24px targets, blocked
-paste — cites the section each finding violates, and exits non-zero when a gate
-fails, so it drops into CI unchanged. Run it alongside axe, never instead of it:
+paste, empty headings and pre-hidden summary or confirmation regions — cites
+the section each finding violates, and exits non-zero when a gate fails, so it
+drops into CI unchanged. Run it alongside axe, never instead of it:
 the accessibility-rules skill's `axe-check.js` covers the rules this one
 deliberately skips.
 
