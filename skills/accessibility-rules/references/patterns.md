@@ -268,14 +268,12 @@ function SignupForm({ emailError }: { emailError?: string }) {
 
       <div>
         <label htmlFor="email">Email address</label>
-        <p id="email-hint">We will never share your email.</p>
         <input
           id="email"
           name="email"
           type="email"
           autoComplete="email"
           required
-          autoComplete="email"
           aria-describedby={emailDescribedBy}
           aria-invalid={emailError ? "true" : undefined}
         />
