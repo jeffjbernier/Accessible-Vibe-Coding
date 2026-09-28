@@ -375,8 +375,10 @@ doesn't apply.
 which walks a rendered form and reports the boxes above that can be verified by
 machine:
 
-    node scripts/form-check.js path/to/form.html
-    node scripts/form-check.js https://staging.example.com/signup
+```bash
+node scripts/form-check.js path/to/form.html
+node scripts/form-check.js https://staging.example.com/signup
+```
 
 It catches what axe passes — placeholder-as-label, fake `<div>` buttons,
 disabled submits, unnamed forms, missing `autocomplete`, ungrouped radios,
