@@ -1,0 +1,39 @@
+name: form-check tests
+
+# form-check.js is the machine half of the form-rules §8 gate. A change to the
+# checker that stops it failing a page it should fail — or starts failing a
+# page it should pass — ships silently unless something runs it. This job runs
+# the fixtures in tests/form-check/ against it.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - 'skills/form-rules/**'
+      - 'tests/**'
+      - '.github/workflows/form-check-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      # The repo has no package.json on purpose. Install the one test
+      # dependency, pinned, without writing a manifest or lockfile.
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+
+      - name: Run form-check tests
+        run: node --test "tests/*.test.mjs"

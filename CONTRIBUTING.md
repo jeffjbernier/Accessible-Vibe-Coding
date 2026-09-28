@@ -62,6 +62,20 @@ Skipping step 2 is the common mistake. The `rules in sync` workflow catches it o
 
 ---
 
+## Running the tests
+
+`tests/` holds regression tests for `skills/form-rules/scripts/form-check.js`: fixture pages it must fail or pass. The checker drives Chromium through Playwright, the one thing here that needs installing. Install it without creating a `package.json`:
+
+```bash
+npm install --no-save --no-package-lock playwright@1.63.0
+npx playwright install chromium
+node --test "tests/*.test.mjs"
+```
+
+The `form-check tests` workflow runs the same commands on every pull request that touches `skills/form-rules/` or `tests/`. When you change what the checker flags, add a fixture that fails before your change and passes after it.
+
+---
+
 ## What the generator does
 
 For each skill it:
