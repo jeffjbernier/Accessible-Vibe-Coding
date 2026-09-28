@@ -115,6 +115,18 @@ function Tabs({ tabs, activeIndex, onChange }) {
 }
 ```
 
+### Combobox (autocomplete)
+
+- Use `role="combobox"` on the input, with `aria-expanded`, `aria-controls`
+  pointing at the `role="listbox"` popup, and `aria-activedescendant` naming
+  the highlighted `role="option"`.
+- Announce the result count through a polite live region
+  (`role="status"`), not through the input itself.
+- Arrow keys move through options, Enter selects, Escape closes the popup and
+  keeps focus in the input.
+- Follow the [WAI-ARIA combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/)
+  exactly; do not improvise the role combination.
+
 ## Keyboard Navigation
 
 ```tsx
@@ -256,9 +268,12 @@ function SignupForm({ emailError }: { emailError?: string }) {
 
       <div>
         <label htmlFor="email">Email address</label>
+        <p id="email-hint">We will never share your email.</p>
         <input
           id="email"
+          name="email"
           type="email"
+          autoComplete="email"
           required
           autoComplete="email"
           aria-describedby={emailDescribedBy}
@@ -280,6 +295,13 @@ function SignupForm({ emailError }: { emailError?: string }) {
   );
 }
 ```
+
+The inline error has no `role="alert"` on purpose. On a failed submit, the
+announcement comes from the error summary at the top of the form, which takes
+focus. An alert on every field makes the screen reader read each error over
+the others. The summary, the grid, and the full error pattern are defined in
+the `form-rules` skill (§7, and `references/markup.md`), which wins wherever
+this example is thinner.
 
 ## Color and Contrast
 
