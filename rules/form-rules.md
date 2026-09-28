@@ -13,7 +13,7 @@
 > Applies to hand-written and AI-generated code alike, even when the request
 > never mentions layout, grid, tokens, validation, or accessibility.
 >
-> Always-apply ruleset, generated from the form-rules skill v1.1.0 in
+> Always-apply ruleset, generated from the form-rules skill v1.2.0 in
 > accessible-vibe-coding. Licensed MIT.
 >
 > Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
@@ -257,8 +257,9 @@ On a failed POST, re-render the page with an error summary **before** the form,
 and move focus to it:
 
 ```html
-<div class="error-summary" role="alert" tabindex="-1" id="error-summary">
-  <h2>There's a problem with 2 answers</h2>
+<div class="error-summary" tabindex="-1" id="error-summary"
+     role="group" aria-labelledby="error-summary-title">
+  <h2 id="error-summary-title">There's a problem with 2 answers</h2>
   <ul>
     <li>
       <a href="#email">Enter an email address in the format name@example.org</a>
@@ -273,6 +274,11 @@ and move focus to it:
 - Server sets focus by rendering `tabindex="-1"` and a tiny inline script (or
   `autofocus`-equivalent) targeting `#error-summary`; with JS off, the summary
   is still first in reading order.
+- **Focus is the only announcement — no `role="alert"`.** An alert fires, then
+  focus lands on the summary and reads it again, so every message is heard
+  twice. The summary is a named group instead: `role="group"` with
+  `aria-labelledby` pointing at its heading, so the focused summary announces
+  its count.
 - The `<title>` is prefixed with `Error:` on an error render so the failure is
   announced on page load.
 
@@ -300,6 +306,38 @@ and move focus to it:
 - **Destructive or financial submissions** (payments, deletions) get a
   review/confirm step (3.3.4).
 
+### 7.4 Conditional regions
+
+The error summary, the save confirmation, and any other region that depends on
+what just happened are **not in the page until it happens**. Never ship them in
+the first render hidden with `hidden` or `display: none`, or as an empty
+heading or list waiting for a script to fill it.
+
+- **Server-rendered:** the template emits the region only on the render where
+  it applies — the error summary on a failed POST, the confirmation on a
+  successful one. Every other render leaves it out entirely.
+- **Client-side enhancement:** keep the region's markup in a `<template>`
+  element, clone it into the page when it applies, and remove it when it no
+  longer applies:
+  - Remove the error summary after a successful submit.
+  - Remove the confirmation when the user goes back to edit.
+  - A repeat submit with errors replaces the old summary — never stack a
+    second one.
+- **No heading without text, ever.** Not a hidden one, and not one the script
+  fills in later. Fill the heading before the region enters the page.
+- Everything in §7.1 still holds for an inserted summary: focus moves to it, it
+  carries `tabindex="-1"`, the `<title>` gains its `Error:` prefix, and each
+  link points at its field's `id`. The reference markup (§4) shows both the
+  server-rendered and the `<template>` version.
+
+Why it matters: `hidden` keeps the region out of the accessibility tree, so
+screen readers stay silent — but checkers that read the HTML, such as WAVE,
+report every empty heading. The protection is also one CSS rule away from
+failing: any `display` value on the container overrides `hidden`, and the
+empty headings appear in every screen reader's headings list with no warning.
+And it drifts from the server path (§1), which never renders a region that
+doesn't apply.
+
 ---
 
 ## 8. Accessibility checklist (per form, gates merge)
@@ -323,6 +361,8 @@ and move focus to it:
 - [ ] `autocomplete` attributes on all personal-data fields (1.3.5).
 - [ ] Error pattern per §7 in place; summary focus verified with a screen
   reader.
+- [ ] No empty or pre-hidden summary/confirmation regions on first load
+  (WAVE: no empty headings) — §7.4.
 - [ ] No motion/animation on validation; respects `prefers-reduced-motion`.
 - [ ] No AI/vibe-coding pitfalls from §11: icon-only controls named, no
   `<div>`/`<span>` fake buttons, no unwarranted `autofocus`, submit never
@@ -335,14 +375,17 @@ and move focus to it:
 which walks a rendered form and reports the boxes above that can be verified by
 machine:
 
-    node scripts/form-check.js path/to/form.html
-    node scripts/form-check.js https://staging.example.com/signup
+```bash
+node scripts/form-check.js path/to/form.html
+node scripts/form-check.js https://staging.example.com/signup
+```
 
 It catches what axe passes — placeholder-as-label, fake `<div>` buttons,
 disabled submits, unnamed forms, missing `autocomplete`, ungrouped radios,
 dangling `aria-describedby`, positive `tabindex`, sub-24px targets, blocked
-paste — cites the section each finding violates, and exits non-zero when a gate
-fails, so it drops into CI unchanged. Run it alongside axe, never instead of it:
+paste, empty headings and pre-hidden summary or confirmation regions — cites
+the section each finding violates, and exits non-zero when a gate fails, so it
+drops into CI unchanged. Run it alongside axe, never instead of it:
 the accessibility-rules ruleset's `axe-check.js` covers the rules this one
 deliberately skips.
 
@@ -468,6 +511,15 @@ reasoning failures.
   or a client-rendered route swaps the form, move focus to that step's heading
   and update the page `<title>` (or an equivalent announcement) so the user
   isn't left focused on a control that no longer exists.
+- **Don't pre-render hidden placeholders for the error summary or
+  confirmation.** Shipping the region on first load with `hidden` and an empty
+  `<h2>` for a script to fill is the shape a show/hide script reaches for
+  first, and it looks harmless: screen readers stay silent, and axe passes it
+  because axe skips what is hidden. It still fails WAVE's empty-heading check,
+  which reads the HTML, and it breaks silently the day a stylesheet gives the
+  container a `display` value — `hidden` is overridden, the empty headings
+  land in every screen reader's headings list, and nothing flags it. Render
+  the region only when it applies, per §7.4.
 - **Never rely on a single sensory characteristic to identify a field or
   instruction** — "the field on the right," "the green button" — pair any such
   reference with text (1.3.3).

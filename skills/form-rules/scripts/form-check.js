@@ -305,6 +305,42 @@ function auditForms() {
       'Attribute references an id that does not exist on the page. The hint or error it points at is announced to nobody.',
       dangling.map(sel));
 
+  // --- §7.4: conditional regions are absent until they apply ---
+  // Checked across the whole body, not just the forms: the error summary and
+  // the confirmation sit outside the <form>. Markup inside a <template> is not
+  // in the document at all, so the §7.4 pattern passes by construction.
+  const headings = [...document.body.querySelectorAll('h1, h2, h3, h4, h5, h6')];
+  const headingText = (h) =>
+    text(h) || accName(h) ||
+    [...h.querySelectorAll('img[alt]')].map(img => img.alt.trim()).join('');
+  add('empty-heading', 'FAIL', '§7.4',
+      'Heading has no text. No heading may be in the page empty — not even a hidden one a script fills in later (WAVE: "Empty heading").',
+      headings.filter(h => !headingText(h)).map(sel));
+
+  // A closed <dialog> or popover is display: none until opened by design, and
+  // hidden="until-found" is a collapsed section; none of them is a region
+  // waiting on a submit result.
+  const isPreHidden = (el) => {
+    const hiddenAttr = el.getAttribute('hidden');
+    if (hiddenAttr !== null) return hiddenAttr !== 'until-found';
+    if (el.tagName === 'DIALOG' || el.hasAttribute('popover')) return false;
+    return getComputedStyle(el).display === 'none';
+  };
+  const NEVER_RENDERED = ['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT'];
+  const REGION_ID = /error-summary|confirmation/i;
+  const regionParts = [...document.body.querySelectorAll('h1, h2, h3, h4, h5, h6, [id]')]
+    .filter(el => /^H[1-6]$/.test(el.tagName) || REGION_ID.test(el.id))
+    .filter(el => !NEVER_RENDERED.includes(el.tagName) && el.type !== 'hidden');
+  const preHidden = new Set();
+  for (const el of regionParts) {
+    for (let node = el; node && node !== document.body; node = node.parentElement) {
+      if (isPreHidden(node)) { preHidden.add(node); break; }
+    }
+  }
+  add('prehidden-region', 'FAIL', '§7.4',
+      'Region is in the page on first load but hidden (hidden attribute or display: none). Leave the error summary or confirmation out until it applies — render it on the server, or clone it from a <template>. Any later display value on the container overrides hidden.',
+      [...preHidden].map(sel));
+
   // --- §8 / 2.5.8: pointer targets ≥ 24×24 CSS px ---
   const small = all('input[type="checkbox"], input[type="radio"], button, a[href], select')
     .filter(el => {

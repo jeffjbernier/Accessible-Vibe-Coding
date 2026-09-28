@@ -7,6 +7,8 @@ implement live in `SKILL.md` — this file is the markup, not the reasoning.
 Contents:
 
 - Form grid — the `<form>` skeleton, field wrappers, and error hooks
+- Error summary — server-rendered, and as a `<template>` for client-side
+  validation (§7.4)
 - CSS (mobile-first) — grid, spans, tokens in use, focus ring, visually-hidden
 - Record display (read-only) — the `dl` pattern for single-record pages
 
@@ -17,7 +19,7 @@ Contents:
 ```html
 <h1 id="contact-form-heading">Contact us</h1>
 <form method="post" action="/register/contact" novalidate class="form-grid"
-      aria-labelledby="contact-form-heading">
+      id="contact-form" aria-labelledby="contact-form-heading">
 
   <!-- general input -->
   <label for="first-name">
@@ -80,6 +82,103 @@ Contents:
   </div>
 </form>
 ```
+
+## Error summary
+
+The summary is in the page only on a render where the submit failed (§7.4) —
+never on first load, never hidden, never with an empty heading. The same goes
+for the save confirmation: it exists only on the render after a successful
+save.
+
+### Server-rendered
+
+The template emits the summary only when there are errors. Place it directly
+before the `<form>`:
+
+```php
+<title><?= $errors ? 'Error: ' : '' ?>Contact us</title>
+
+<?php if ($errors): ?>
+  <div class="error-summary" tabindex="-1" id="error-summary"
+       role="group" aria-labelledby="error-summary-title">
+    <h2 id="error-summary-title">
+      There's a problem with <?= count($errors) ?>
+      <?= count($errors) === 1 ? 'answer' : 'answers' ?>
+    </h2>
+    <ul>
+      <?php foreach ($errors as $field => $message): ?>
+        <li>
+          <a href="#<?= e(str_replace('_', '-', $field)) ?>"><?= e($message) ?></a>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+  <script>document.getElementById('error-summary').focus();</script>
+<?php endif; ?>
+```
+
+### Client-side (`<template>`)
+
+When JavaScript validates before the POST, keep the summary's markup in a
+`<template>`. Its content is not part of the page, so there is nothing to hide.
+The template's heading has real text, and the script replaces it with the count
+before the summary is inserted:
+
+```html
+<template id="error-summary-template">
+  <div class="error-summary" tabindex="-1" id="error-summary"
+       role="group" aria-labelledby="error-summary-title">
+    <h2 id="error-summary-title">There's a problem with this form</h2>
+    <ul></ul>
+  </div>
+</template>
+```
+
+```js
+const form = document.getElementById('contact-form');
+const summaryTemplate = document.getElementById('error-summary-template');
+const baseTitle = document.title;
+
+function removeSummary() {
+  document.getElementById('error-summary')?.remove();
+  document.title = baseTitle;
+}
+
+function showSummary(errors) {
+  removeSummary(); // replace the old summary; never stack a second one
+  const summary = summaryTemplate.content.firstElementChild.cloneNode(true);
+  const noun = errors.length === 1 ? 'answer' : 'answers';
+  summary.querySelector('h2').textContent =
+    `There's a problem with ${errors.length} ${noun}`;
+  for (const { id, message } of errors) {
+    const link = document.createElement('a');
+    link.href = `#${id}`;
+    link.textContent = message;
+    const item = document.createElement('li');
+    item.append(link);
+    summary.querySelector('ul').append(item);
+  }
+  form.before(summary);
+  document.title = `Error: ${baseTitle}`;
+  summary.focus();
+}
+
+form.addEventListener('submit', (event) => {
+  // validate() returns [{ id, message }] with the server's exact messages (§7.3)
+  const errors = validate(form);
+  if (errors.length) {
+    event.preventDefault();
+    showSummary(errors);
+  } else {
+    removeSummary();
+  }
+});
+```
+
+The inline errors under each field (§7.2) still apply and are left out here to
+keep the example short. A confirmation shown without a reload follows the same
+pattern: clone it from its own `<template>` after the save succeeds, and remove
+it when the user goes back to edit.
 
 ## CSS (mobile-first)
 
