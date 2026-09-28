@@ -46,22 +46,26 @@ const rewrites = {
       '**Relationship to the form-rules ruleset.** For form layout, grid, tokens,\nand the error pattern, the companion `form-rules` file is the source of truth.',
     ],
     [
-      'them whenever this skill is loaded, whether or not the request mentions',
-      'them whenever this file is loaded, whether or not the request mentions',
+      'apply whenever this skill is\nloaded, whether or not the request mentions',
+      'apply whenever this file is\nloaded, whether or not the request mentions',
     ],
     [
-      '  This skill bundles one — `scripts/axe-check.js`, which drives axe-core over a\n  URL or a local HTML file:',
-      `  The accessible-vibe-coding repo ships one — [axe-check.js](${blob}/skills/accessibility-rules/scripts/axe-check.js),\n  which drives axe-core over a URL or a local HTML file:`,
+      '- The project may include `scripts/axe-check.js`; if present, it can be used to',
+      `- The project may include [scripts/axe-check.js](${blob}/skills/accessibility-rules/scripts/axe-check.js); if present, it can be used to`,
     ],
     [
-      'live in `references/patterns.md`. Read it before building',
-      `live in [references/patterns.md](${blob}/skills/accessibility-rules/references/patterns.md). Read it before building`,
+      'runtime (including `references/patterns.md`).',
+      `runtime (including [references/patterns.md](${blob}/skills/accessibility-rules/references/patterns.md)).`,
     ],
   ],
   'form-rules': (blob) => [
     [
       'live in `references/markup.md`. Read that file',
       `live in [references/markup.md](${blob}/skills/form-rules/references/markup.md). Read that file`,
+    ],
+    [
+      '`references/markup.md` is not present or cannot be read,',
+      `[references/markup.md](${blob}/skills/form-rules/references/markup.md) is not present or cannot be read,`,
     ],
     [
       '**Checking the mechanical half.** This skill bundles `scripts/form-check.js`,',

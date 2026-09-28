@@ -13,7 +13,7 @@
 > Applies to hand-written and AI-generated code alike, even when the request
 > never mentions layout, grid, tokens, validation, or accessibility.
 >
-> Always-apply ruleset, generated from the form-rules skill v1.0.0 in
+> Always-apply ruleset, generated from the form-rules skill v1.1.0 in
 > accessible-vibe-coding. Licensed MIT.
 >
 > Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
@@ -156,10 +156,12 @@ entirely:
 
 The canonical markup and CSS — the form grid, its mobile-first stylesheet, and
 the read-only record display — live in [references/markup.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md). Read that file
-before writing or reviewing any form markup, and copy from it rather than
-reconstructing the grid from the rules above. It is the implementation of §2
-and §3; if the two ever disagree, §2 and §3 win and the reference file is the
-bug.
+before writing or reviewing any form markup. Use it as a concrete starting
+point only. If the reference file differs from §2 or §3, follow §2 and §3 and
+note the discrepancy in a code comment or TODO so the mismatch is explicit. If
+[references/markup.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md) is not present or cannot be read, proceed using §2 and §3
+as the sole source of truth and note in a code comment that the reference file
+was unavailable.
 
 ---
 
@@ -169,18 +171,50 @@ Every field, in DOM order:
 
 1. **Label** — always a real `<label for>` pointing at the control's `id`. Never
    placeholder-as-label. Groups of checkboxes/radios get `<fieldset>` +
-   `<legend>`.
+   `<legend>`. When a choice group sits inside a named `<form>`, the
+   `<legend>` text must remain distinct from the `<form>`'s accessible name and
+   describe the specific choice group, not restate the form heading. Do not use
+   `aria-label` on the `<fieldset>` — the `<legend>` element is the required
+   naming mechanism.
+
+   For example, if the form is named "Volunteer registration", the legend
+   should be something like "Preferred volunteer role" or "Which shifts work
+   for you?" — not "Volunteer registration".
 2. **Required marker** — visible `*` with `aria-hidden="true"`, plus the
    `required` attribute on the control. State "`*` = required" once above the
    form. Do **not** mark optional-only forms; if most fields are optional, mark
-   required ones; never mark both.
-3. **Hint** (optional) — `<p class="field-hint" id="{id}-hint">`, linked via
-   `aria-describedby`. Hints hold format guidance ("MM/DD/YYYY"), not error
-   text.
-4. **Control** — native HTML elements first (`<select>`, `<input type=date>`,
+   required ones; never mark both. For forms with only 1–2 fields, default to
+   marking required fields with `*` only. When required and optional fields are
+   evenly split or otherwise the count is not clearly weighted, mark the
+   required fields.
+3. **Control** — native HTML elements first (`<select>`, `<input type=date>`,
    etc.). A custom control is allowed only when a native one can't do the job,
    and must meet the full WCAG bar (role, name, state, keyboard).
-5. **Error** (conditional) — see §7.
+4. **Error** (conditional) — directly under the control; see §7.
+5. **Hint / tip** (optional) — displayed **below the control** (and below any
+   error), in `<p class="field-hint" id="{id}-hint">`. The control's
+   `aria-describedby` references the error id (when present) and the hint id,
+   in the order they appear on screen: error first, then hint. The error the
+   user must act on is read first. The hint opens with a visually hidden
+   prefix, `<span class="sr-only">Tip: </span>`, so screen-reader users hear
+   it as a tip rather than mistaking it for an error or part of the label:
+
+   ```html
+   <input type="email" id="email" name="email" autocomplete="email"
+          aria-invalid="true" aria-describedby="email-error email-hint">
+   <!-- render the error, and its id in aria-describedby, only on error -->
+   <p class="field-error" id="email-error">
+     Enter an email address in the format name@example.org
+   </p>
+   <p class="field-hint" id="email-hint">
+     <span class="sr-only">Tip: </span>
+     We send your confirmation and sign-in link here.
+   </p>
+   ```
+
+   With no error, use `aria-describedby="email-hint"`. With no hint, use
+   `aria-describedby="email-error"`. Hints hold format guidance ("MM/DD/YYYY")
+   and notes, not error text.
 6. **Autocomplete** — set `autocomplete` on every field collecting personal data
    (`given-name`, `family-name`, `email`, `tel`, `street-address`,
    `postal-code`, …). This satisfies WCAG 1.3.5 and reduces re-typing (3.3.7
@@ -244,15 +278,16 @@ and move focus to it:
 
 ### 7.2 Inline errors (per field)
 
-- Error text in `<p class="field-error" id="{id}-error">`, placed between hint
-  and control's visual slot (directly under the input in this system).
-- The control gets `aria-invalid="true"` and its `aria-describedby` includes the
-  error id (and hint id if present): `aria-describedby="email-hint
-  email-error"`.
+- Error text in `<p class="field-error" id="{id}-error">`, placed directly
+  under the control and above its hint (§5).
+- The control gets `aria-invalid="true"`, and its `aria-describedby` lists the
+  error id first, then the hint id when present, matching screen order:
+  `aria-describedby="email-error email-hint"`, or without a hint,
+  `aria-describedby="email-error"`.
 - Error styling uses color **plus** an icon or bold prefix — never color alone
   (1.4.1).
 - Error text says **how to fix it**, not just "Invalid": *"Enter an email
-  address in the format [name@example.org](mailto:name@example.org)."*
+  address in the format `name@example.org`."*
 
 ### 7.3 Behavior rules
 

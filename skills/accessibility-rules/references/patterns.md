@@ -1,9 +1,9 @@
 # Accessibility patterns
 
 Worked examples for the rules in `SKILL.md`: landmark markup, a dialog, a tab
-list with roving tabindex, an arrow-key handler, a form field with hint and
-error, and focus-ring CSS. Copy the shape, not the content. Where an example
-here and a rule in `SKILL.md` disagree, the rule wins.
+list with roving tabindex, an arrow-key handler, a step indicator, a form field
+with hint and error, and focus-ring CSS. Copy the shape, not the content.
+Where an example here and a rule in `SKILL.md` disagree, the rule wins.
 
 The React examples use JSX because that is where assistants most often invent
 a `<div onClick>`. Every pattern translates directly to plain HTML, Vue, or a
@@ -45,6 +45,9 @@ server template; the attributes are the point, not the framework.
 
 ## Dialog and Tabs
 
+The modal below implements the modal contract in `SKILL.md` ("Modals and
+dialogs"). The contract is the requirement; this is one way to meet it.
+
 ```tsx
 import { useEffect, useId, useRef } from "react";
 
@@ -54,9 +57,8 @@ function Modal({ isOpen, onClose, title, children }) {
   // as a page has two modals.
   const titleId = useId();
 
-  // showModal() traps focus, makes the rest of the page inert, closes on
-  // Escape, and returns focus to the trigger. A <div role="dialog"> does none
-  // of that on its own.
+  // showModal() meets the whole modal contract natively and also makes the
+  // rest of the page inert. A <div role="dialog"> does none of that on its own.
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
@@ -148,6 +150,90 @@ function handleArrowKeys(
 }
 ```
 
+## Step Indicator
+
+Completed and current steps are links; the current one carries
+`aria-current="step"`. Upcoming steps are plain text. State is spoken through
+visually hidden text and shown by a checkmark, weight, and border thickness,
+never by color alone.
+
+```html
+<nav class="steps" aria-label="Checkout progress">
+  <ol>
+    <li class="steps__item steps__item--done">
+      <a href="/checkout/cart">Cart<span class="sr-only"> (completed)</span></a>
+    </li>
+    <li class="steps__item steps__item--done">
+      <a href="/checkout/shipping">Shipping<span class="sr-only"> (completed)</span></a>
+    </li>
+    <li class="steps__item steps__item--current">
+      <a href="/checkout/payment" aria-current="step">Payment</a>
+    </li>
+    <li class="steps__item">
+      <span class="steps__label">Review<span class="sr-only"> (not started)</span></span>
+    </li>
+  </ol>
+</nav>
+```
+
+```css
+/* One row at every width: columns share the space instead of wrapping. */
+.steps ol {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps__item {
+  border-bottom: 2px solid var(--text-secondary);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Fill the cell so each link is at least a 44x44px target. Labels wrap to
+   at most three lines; shorten the copy rather than clamping it. Column
+   direction stacks the checkmark above the label: in a row, ::before is a
+   separate flex item that never wraps, and pushes long words out of the cell. */
+.steps__item a,
+.steps__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.25rem;
+  color: var(--text-primary);
+  hyphens: auto;
+}
+
+/* Empty alt text after the slash: the hidden "(completed)" already says it. */
+.steps__item--done a::before {
+  content: "✓" / "";
+}
+
+.steps__item--current {
+  border-bottom-width: 6px;
+  border-bottom-color: var(--text-primary);
+  font-weight: 700;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+```
+
 ## Form Accessibility
 
 ```tsx
@@ -156,7 +242,8 @@ function handleArrowKeys(
 function SignupForm({ emailError }: { emailError?: string }) {
   // Reference the error id only while the error is rendered, so
   // aria-describedby never points at an element that is not there.
-  const emailDescribedBy = emailError ? "email-hint email-error" : "email-hint";
+  // Error first, then hint: the same order they appear on screen.
+  const emailDescribedBy = emailError ? "email-error email-hint" : "email-hint";
 
   return (
     <form
@@ -177,12 +264,15 @@ function SignupForm({ emailError }: { emailError?: string }) {
           aria-describedby={emailDescribedBy}
           aria-invalid={emailError ? "true" : undefined}
         />
-        <p id="email-hint">We will never share your email.</p>
         {emailError && (
           <p id="email-error" className="error-message">
             {emailError}
           </p>
         )}
+        <p id="email-hint" className="field-hint">
+          <span className="sr-only">Tip: </span>
+          We will never share your email.
+        </p>
       </div>
 
       <button type="submit">Create Account</button>
