@@ -1,0 +1,4 @@
+# tools/build-rules.mjs parses SKILL.md frontmatter and matches rewrite
+# targets as LF text, so Markdown must stay LF in every working copy,
+# whatever core.autocrlf is set to.
+*.md text eol=lf
