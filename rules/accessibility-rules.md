@@ -14,29 +14,35 @@
 > Also use when a task mentions WCAG, ARIA, contrast, keyboard navigation,
 > focus, screen readers, or touch targets.
 >
-> Always-apply ruleset, generated from the accessibility-rules skill in
-> accessible-vibe-coding v1.0.0. Licensed MIT.
+> Always-apply ruleset, generated from the accessibility-rules skill v1.2.0 in
+> accessible-vibe-coding. Licensed MIT.
 >
-> Source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
+> Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
 
-Every rule in this file is a hard constraint, not a suggestion. Apply all of
-them whenever this file is loaded, whether or not the request mentions
-accessibility. These rules override ad-hoc patterns in existing code. Goal:
+Every rule in this file is a hard constraint, not a suggestion, except for the
+optional features listed in "Recommend when appropriate — do not build
+unprompted." That section is suggest-only and requires explicit discussion and
+approval before implementation. All other rules apply whenever this file is
+loaded, whether or not the request mentions accessibility. These rules
+override ad-hoc patterns in existing code. Goal:
 interfaces usable by everyone from the first commit — not just compliant, but
 genuinely inclusive.
 
+When modifying existing code that contains accessibility violations unrelated to
+the requested change: fix violations that are within the scope of the modified
+component without asking. For violations outside the modified scope, do not
+change them silently — instead append a comment block listing the violations
+found and the recommended fixes, so the developer can address them
+deliberately.
+
 **Relationship to the form-rules ruleset.** For form layout, grid, tokens,
 and the error pattern, the companion `form-rules` file is the source of truth. Where the two
-overlap, form-rules wins — e.g. its 24×24px minimum pointer-target gate governs
-form controls, while this file's 44×44px default applies everywhere form-rules
-is silent.
+overlap, form-rules wins. Touch-target sizing is defined once in "Touch and
+pointer" and applies across this file.
 
 ## Accessibility Guidelines
 
 - **Target: WCAG 2.2 Level AA** for all user-facing features.
-- Touch targets: exceed the AA minimum (24×24px, SC 2.5.8) by building to the
-  AAA size (44×44px, SC 2.5.5) as the default, unless a project standard sets
-  its own gate.
 
 ## Working model
 
@@ -118,11 +124,23 @@ Before generating any UI, confirm:
   cover the focused element. Use scroll-padding to keep focused elements clear
   of fixed bars.
 - Never put `aria-hidden="true"` on a focusable element.
-- Modals and dialogs trap focus: Tab cycles within the dialog. Escape closes it.
-  Focus returns to the trigger on close.
+- Modals and dialogs follow the modal contract in "Modals and dialogs".
 - Custom composite widgets (tab lists, toolbars, menus) use roving tabindex: one
   tab stop for the group, arrow keys to move within.
 - No keyboard traps.
+
+## Modals and dialogs
+
+This is the modal contract, and the only place it is written down. Every other
+section that mentions modals points here; change the requirements here, never
+there. It applies to every modal and dialog, including confirmation dialogs.
+
+- Focus is trapped: Tab and Shift+Tab cycle within the dialog.
+- Escape closes it.
+- On close, focus returns to the element that opened it.
+
+Use a native `<dialog>` element opened with `showModal()`. It natively traps
+focus, responds to Escape, and returns focus on close.
 
 ## ARIA and landmarks
 
@@ -135,11 +153,10 @@ Before generating any UI, confirm:
 - Add aria-current="page" to the active link in navigation.
 - For complex widgets, follow WAI-ARIA Authoring Practices patterns exactly —
   don't improvise ARIA role combinations.
-- Worked examples of the patterns above — landmark markup, a dialog, a tab list
-  with roving tabindex, an arrow-key handler, a form field with hint and error,
-  and focus-ring CSS — live in [references/patterns.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/accessibility-rules/references/patterns.md). Read it before building
-  a custom widget. Where an example and a rule in this file disagree, the rule
-  wins.
+- If a custom widget pattern is needed, inline the critical pattern directly in
+  the output instead of relying on external references that are not available at
+  runtime (including [references/patterns.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/accessibility-rules/references/patterns.md)). When a rule and an example
+  disagree, the rule wins.
 
 ## Navigation aids
 
@@ -147,6 +164,37 @@ Before generating any UI, confirm:
   page. Visually hidden by default, visible on keyboard focus, linking to
   `<main>` via its id.
 - On pages with multiple content regions, add secondary skip links.
+- Consistent navigation (SC 3.2.3, 3.2.4): repeated navigation keeps the same
+  relative order on every page, and the same function keeps the same name and
+  icon everywhere.
+
+## Step indicators (multi-step flows)
+
+- Wrap the steps in `<nav aria-label="…">` naming the flow ("Checkout
+  progress"), with an `<ol>` inside so the step count and order are announced.
+- Every completed step and the current step is a real `<a href>`, so users can
+  go back to fix an answer or reload the step they are on. Upcoming steps are
+  plain text — not links, not disabled buttons — because they cannot be
+  reached yet.
+- The current step's link carries `aria-current="step"`. Do not also add a
+  visually hidden "current" label; the screen reader already announces
+  "current step", and doubling it is noise.
+- Give completed and upcoming steps a visually hidden status ("completed",
+  "not started") so their state is not carried by color or an icon alone.
+  Visually, mark state with more than color too: a checkmark on completed
+  steps, bold text and a thicker border on the current step.
+- Prefer a single-row layout when the labels fit. At 320px width (400% zoom),
+  do not shrink below 16px base text or truncate labels with ellipses or
+  `line-clamp`; if the labels still do not fit, shorten the labels or use a
+  stacked/segmented treatment instead of breaking the 16px minimum.
+- Each step's label may wrap to at most three lines. When a label needs more,
+  shorten the text rather than truncating it with ellipsis or `line-clamp`.
+  Keep the short label meaningful: "Shipping address" → "Shipping",
+  "Review and confirm your order" → "Review". If labels still do not fit,
+  simplify the flow or group steps rather than shrinking text below 16px.
+- Each step link follows the touch-target minimum defined in "Touch and
+  pointer." The `form-rules` 24×24px gate applies only to form controls, not
+  step indicators.
 
 ## Forms
 
@@ -196,9 +244,18 @@ Before generating any UI, confirm:
   thresholds instead.
 - No auto-playing media. If unavoidable, provide a visible, keyboard-accessible
   pause/stop control.
+- Pause, stop, hide (SC 2.2.2): carousels, tickers, and anything else that
+  moves, blinks, or scrolls for more than five seconds gets a visible,
+  keyboard-accessible control to pause, stop, or hide it. Content that
+  auto-updates (live scores, polling feeds) gets one however briefly it runs,
+  or a control for how often it updates.
 - Support prefers-color-scheme: dark with maintained WCAG AA contrast.
 - Support prefers-contrast: more with increased border widths, solid
   backgrounds, and boosted text weight.
+- Support forced-colors: active (Windows contrast themes, formerly High
+  Contrast). Backgrounds are overridden and box-shadow is removed, so never
+  carry state or a focus ring on either alone. Use borders and outline, which
+  survive.
 
 ## Media and captions
 
@@ -229,20 +286,24 @@ Before generating any UI, confirm:
 - Use aria-live="assertive" / role="alert" only for urgent messages.
 - Announce dynamic content changes to screen readers via live regions — only for
   updates that do not receive focus.
+- Autosuggest and search-as-you-type: announce the number of results through a
+  polite live region as the list updates.
 
 ## Error prevention and timeouts
 
 - Destructive actions require a confirmation dialog describing the consequences,
-  with confirm and cancel options.
-- Confirmation modals trap focus, dismiss with Escape, and return focus to the
-  trigger on close.
+  with confirm and cancel options. The dialog meets the modal contract in
+  "Modals and dialogs".
+- Timing adjustable (SC 2.2.1): no time limits unless essential. Where one
+  exists, let the user turn it off, adjust it, or extend it.
 - Session timeouts warn at least 2 minutes before expiry via role="alert", with
   a control to extend.
 
 ## Touch and pointer
 
 - Minimum touch target: 44×44 CSS pixels with 8px spacing between adjacent
-  targets.
+  targets. Exception: when `form-rules` is active, its 24×24px minimum pointer
+  target gate governs form controls only.
 - No functionality depends solely on swipe, pinch, or drag. Provide visible
   button alternatives.
 - No hover-only interactions for essential content.
@@ -274,20 +335,27 @@ project fits and ask before building:
 
 ## Self-audit
 
-- After generating any complete page or component, run an automated
-  accessibility audit and fix every violation before presenting the output.
-  The accessible-vibe-coding repo ships one — [axe-check.js](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/accessibility-rules/scripts/axe-check.js),
-  which drives axe-core over a URL or a local HTML file:
+- After generating any HTML, JSX, or template output that includes user-facing
+  UI, interactive elements, or structural markup, run an automated accessibility
+  audit and fix every violation before presenting the output. For isolated
+  utility code (for example, a single CSS variable or helper function with no
+  DOM output), apply the relevant hard rules inline and skip the full audit.
+- The project may include [scripts/axe-check.js](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/accessibility-rules/scripts/axe-check.js); if present, it can be used to
+  drive axe-core over a URL or a local HTML file:
 
       node scripts/axe-check.js path/to/page.html
       node scripts/axe-check.js https://staging.example.com/signup
 
   It defaults to the WCAG 2.2 AA rule set, exits non-zero when violations are
-  found (so it drops into CI unchanged), and takes `--json` for machine-readable
-  output. It needs `playwright` and `axe-core` installed in the project being
-  scanned; `--help` lists the rest of the flags.
-- When no audit tooling is available and those dependencies can't be installed,
-  do a manual pass against the Hard rules and Litmus checks below instead.
+  found, and takes `--json` for machine-readable output. The model cannot verify
+  whether the script or its dependencies exist in every project, so always do a
+  manual pass against the Hard rules and Litmus checks below.
+
+- Include the command as a comment in the output for the developer to run if
+  they want an automated check:
+
+      <!-- Accessibility audit: node scripts/axe-check.js path/to/output.html -->
+
 - If any violation cannot be fixed automatically, flag it with a comment
   explaining the issue and the recommended manual fix.
 - A clean run is the floor, not the finish line. axe catches the mechanical
@@ -304,8 +372,8 @@ project fits and ask before building:
 - No form input without a visible, associated label.
 - No heading level skipped; exactly one H1.
 - No animation outside a prefers-reduced-motion guard.
-- No modal without focus trapping and Escape dismissal.
-- No touch target below 44×44px.
+- No modal that breaks the modal contract in "Modals and dialogs".
+- No touch target below the minimum defined in "Touch and pointer".
 - No color used as the sole means of conveying information.
 - No focus indicator below 3:1 contrast, and no focused element obscured by
   sticky UI.
@@ -328,7 +396,7 @@ project fits and ask before building:
 - Inputs that reformat or reject text while the user is typing.
 - "Invalid input" errors with no description or fix.
 - Error states with no focus management or error summary.
-- Modals without focus trapping or Escape dismissal.
+- Modals that miss any item of the modal contract ("Modals and dialogs").
 - Animations ignoring prefers-reduced-motion.
 - Animations firing on page load regardless of viewport position.
 - "Click here" / "Read more" link text with no context.
@@ -360,7 +428,7 @@ Before considering output complete, verify:
 
 ## Handoff items — flag for human testing
 
-Claude cannot perform these; list them as a testing checklist in the
+This assistant cannot perform these; list them as a testing checklist in the
 deliverable:
 
 - Manual screen reader testing with at least two readers (NVDA + VoiceOver, or

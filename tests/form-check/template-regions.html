@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!--
+  form-check fixture: MUST PASS §7.4.
+
+  The same page as prehidden-regions.html, built the §7.4 way: the error
+  summary lives in a <template> and enters the page only when a submit fails.
+  On first load there is no summary, no empty heading, and nothing hidden.
+  The script is the one in skills/form-rules/references/markup.md, plus a real
+  validate() for this page's single field.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact us – form-check fixture</title>
+  <style>
+    button { min-height: 44px; padding: 0.5rem 1rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 id="contact-form-heading">Contact us</h1>
+
+    <template id="error-summary-template">
+      <div class="error-summary" tabindex="-1" id="error-summary"
+           role="group" aria-labelledby="error-summary-title">
+        <h2 id="error-summary-title">There's a problem with this form</h2>
+        <ul></ul>
+      </div>
+    </template>
+
+    <form method="post" action="/contact" novalidate class="form-grid"
+          id="contact-form" aria-labelledby="contact-form-heading">
+      <label for="email">Email</label>
+      <div class="field">
+        <input type="email" id="email" name="email" autocomplete="email">
+      </div>
+      <div class="form-actions">
+        <button type="submit">Send</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('contact-form');
+    const summaryTemplate = document.getElementById('error-summary-template');
+    const baseTitle = document.title;
+
+    // Same messages the server sends (§7.3).
+    function validate(formElement) {
+      const email = formElement.elements.email.value.trim();
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return [];
+      return [{ id: 'email', message: 'Enter an email address in the format name@example.org' }];
+    }
+
+    function removeSummary() {
+      document.getElementById('error-summary')?.remove();
+      document.title = baseTitle;
+    }
+
+    function showSummary(errors) {
+      removeSummary(); // replace the old summary; never stack a second one
+      const summary = summaryTemplate.content.firstElementChild.cloneNode(true);
+      const noun = errors.length === 1 ? 'answer' : 'answers';
+      summary.querySelector('h2').textContent =
+        `There's a problem with ${errors.length} ${noun}`;
+      for (const { id, message } of errors) {
+        const link = document.createElement('a');
+        link.href = `#${id}`;
+        link.textContent = message;
+        const item = document.createElement('li');
+        item.append(link);
+        summary.querySelector('ul').append(item);
+      }
+      form.before(summary);
+      document.title = `Error: ${baseTitle}`;
+      summary.focus();
+    }
+
+    form.addEventListener('submit', (event) => {
+      const errors = validate(form);
+      if (errors.length) {
+        event.preventDefault();
+        showSummary(errors);
+      } else {
+        removeSummary();
+      }
+    });
+  </script>
+</body>
+</html>

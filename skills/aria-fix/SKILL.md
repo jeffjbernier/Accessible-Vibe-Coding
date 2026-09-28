@@ -39,8 +39,8 @@ Work in this order. Each step can remove the need for the next one.
    `aria-label` where visible text already names the element.
 5. **Keyboard handling.** Custom interactive elements get `tabindex="0"` and a
    keydown handler for Enter and Space. Composite widgets use roving
-   tabindex: one tab stop, arrow keys inside. Dialogs trap focus, close on
-   Escape, and return focus to the trigger.
+   tabindex: one tab stop, arrow keys inside. Dialogs meet the modal
+   contract in the `accessibility-rules` skill ("Modals and dialogs").
 6. **Forms.** Associate every input with a visible `<label for>`. Group related
    controls in `<fieldset>` with a `<legend>`. Tie hints and errors to the
    field with `aria-describedby`, and set `aria-invalid="true"` on a field in

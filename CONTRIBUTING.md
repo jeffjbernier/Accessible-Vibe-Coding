@@ -39,9 +39,9 @@ node tools/build-rules.mjs
 
 It prints one line per file:
 
-```
-wrote rules/accessibility-rules.md (16700 bytes)
-wrote rules/form-rules.md (21080 bytes)
+```text
+wrote rules/accessibility-rules.md (<N> bytes)
+wrote rules/form-rules.md (<N> bytes)
 ```
 
 ### Verify without writing
@@ -62,6 +62,20 @@ Skipping step 2 is the common mistake. The `rules in sync` workflow catches it o
 
 ---
 
+## Running the tests
+
+`tests/` holds regression tests for `skills/form-rules/scripts/form-check.js`: fixture pages it must fail or pass. The checker drives Chromium through Playwright, the one thing here that needs installing. Install it without creating a `package.json`:
+
+```bash
+npm install --no-save --no-package-lock playwright@1.63.0
+npx playwright install chromium
+node --test "tests/*.test.mjs"
+```
+
+The `form-check tests` workflow runs the same commands on every pull request that touches `skills/form-rules/` or `tests/`. When you change what the checker flags, add a fixture that fails before your change and passes after it.
+
+---
+
 ## What the generator does
 
 For each skill it:
@@ -79,7 +93,7 @@ The generator fails loudly rather than shipping a broken rules file. Two errors 
 
 **`rewrite target not found`** — you edited a passage in a skill that the generator rewrites, so it no longer matches. The error quotes what it looked for. Open `tools/build-rules.mjs`, find that entry in the `rewrites` table, and update the `from` string to your new wording:
 
-```
+```text
 Error: skills/form-rules/SKILL.md: rewrite target not found.
   Looked for: "live in `references/markup.md`. Read that file"...
 ```
@@ -102,7 +116,7 @@ If the skill is a procedure rather than a ruleset — a slash command someone ty
 
 ## Adding an agent
 
-Agent definitions live in `agents/<name>.md`, one file each, with `name`, `description`, and `tools` in the frontmatter. Leave `model` out so the agent inherits whatever the user's session runs; a pinned model name goes stale. A reviewer agent should not have `Write` or `Edit` in its tool list. The generator ignores `agents/`.
+Agent definitions live in `agents/<name>.md`, one file each, with `name`, `description`, and `tools` in the frontmatter. Leave `model` out so the agent inherits whatever the user's session runs; a pinned model name goes stale. A reviewer agent should not have `Write` or `Edit` in its tool list. An agent that needs the rules lists the skills under `skills:` in its frontmatter and does not restate them; a restated rule is a second copy that drifts. The generator ignores `agents/`.
 
 ---
 

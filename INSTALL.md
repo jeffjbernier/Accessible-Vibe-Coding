@@ -114,7 +114,7 @@ Then add one line to `~/.claude/CLAUDE.md`:
 @rules/accessibility-rules.md
 ```
 
-The `@` import resolves relative to the `CLAUDE.md` that contains it, so the same line works in a project `CLAUDE.md` with the file at `<repo>/rules/accessibility-rules.md`. The cost is real: the file is about 17 KB, roughly 4,000 tokens on every turn. If that matters, skip this step and rely on the skill firing.
+The `@` import resolves relative to the `CLAUDE.md` that contains it, so the same line works in a project `CLAUDE.md` with the file at `<repo>/rules/accessibility-rules.md`. The cost is real: the file is about 18 KB, roughly 4,300 tokens on every turn. If that matters, skip this step and rely on the skill firing.
 
 **2. Put it in the definition of done.** Wherever your `CLAUDE.md` says what "done" means, add:
 
@@ -152,6 +152,8 @@ Windows PowerShell:
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\agents"
 Copy-Item Accessible-Vibe-Coding\agents\*.md "$env:USERPROFILE\.claude\agents\"
 ```
+
+`accessibility-specialist` does not carry its own copy of the rules, so install both rules skills before you use it. Its frontmatter lists `accessibility-rules` and `form-rules` under `skills:`, and Claude Code injects the body of each `SKILL.md` when the agent starts. The `references/` and `scripts/` folders are not injected; the agent reads those from the skill folder when it needs them. Claude Code skips a listed skill it can't find and says so only in the debug log, so the agent is written to stop and tell you when either skill is missing. `ux-design-agent` preloads `accessibility-rules` the same way for its accessibility category. Without the skill it says so under that heading and still reviews the other five.
 
 Run `/agents` to confirm they loaded. Claude picks one on its own when a task matches its description, or you can name it: "use the ux-design-agent to review the checkout page."
 
@@ -191,7 +193,7 @@ A skill uploaded this way syncs to your account, which means it also reaches Cow
 
 These tools read a rules file, not a skill. `rules/accessibility-rules.md` and `rules/form-rules.md` hold the same content as the skills with the frontmatter stripped and every repo-relative path rewritten to an absolute URL, so they keep working once copied out of this repo.
 
-The body is the same everywhere. What changes is the destination and the frontmatter you put on top. This section is the short version. For what each tool actually does with the file, the size caps that silently truncate it, and how to confirm it fired, read [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md).
+The body is the same everywhere. What changes is the destination, the frontmatter you put on top, and on Windsurf a split to fit its size cap. This section is the short version. For what each tool actually does with the file, the size caps that silently truncate it, and how to confirm it fired, read [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md).
 
 ### Cursor
 
@@ -216,15 +218,11 @@ Set `alwaysApply: true` for `accessibility-rules`, since the whole point is that
 
 ### Windsurf
 
-Windsurf reads `.devin/rules/*.md`, with `.windsurf/rules/*.md` still honored as a fallback:
+Windsurf reads `.devin/rules/*.md`, with `.windsurf/rules/*.md` still honored as a fallback. It also caps each rule file at 12,000 characters, and both files in `rules/` are over that. A straight copy loads, but the tail of each file is dropped with no warning.
 
-```bash
-mkdir -p .devin/rules
-cp Accessible-Vibe-Coding/rules/accessibility-rules.md .devin/rules/
-cp Accessible-Vibe-Coding/rules/form-rules.md .devin/rules/
-```
+So don't copy these two files as they are. Split each one in two with the commands in [the Windsurf section of the other-tools guide](guides/using-rules-in-other-tools.md#3-windsurf-devin-desktop).
 
-Windsurf's frontmatter uses `trigger:` rather than Cursor's boolean:
+Each of the four resulting files needs Windsurf's frontmatter, which uses `trigger:` rather than Cursor's boolean:
 
 ```markdown
 ---
@@ -259,7 +257,7 @@ Any assistant that accepts a plain markdown instruction file takes these unmodif
 
 ### Keeping them current
 
-The rules files are generated from the skills. Don't edit your copy expecting an update to preserve it, and don't send a pull request against `rules/` — the fix belongs in `skills/<name>/SKILL.md`, which the generator reads. To refresh your copy, `git pull` and re-copy, the same as the skills.
+The rules files are generated from the skills. Don't edit your copy expecting an update to preserve it, and don't send a pull request against `rules/` — the fix belongs in `skills/<name>/SKILL.md`, which the generator reads. To refresh your copy, `git pull` and re-copy, the same as the skills. On Windsurf, re-run the split instead of re-copying.
 
 If you've forked and changed a skill, rebuild before copying out:
 
@@ -297,7 +295,7 @@ cp -r skills/form-rules ~/.claude/skills/
 cp agents/*.md ~/.claude/agents/
 ```
 
-For a rules-file install, re-copy from `rules/` into whichever destination you used above.
+For a rules-file install, re-copy from `rules/` into whichever destination you used above. On Windsurf, re-run the split rather than re-copying.
 
 If you've edited a skill locally, `git pull` won't touch your copy under `~/.claude/skills/` — diff the two before overwriting so you don't lose your changes.
 

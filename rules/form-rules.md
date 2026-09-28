@@ -13,10 +13,10 @@
 > Applies to hand-written and AI-generated code alike, even when the request
 > never mentions layout, grid, tokens, validation, or accessibility.
 >
-> Always-apply ruleset, generated from the form-rules skill in
-> accessible-vibe-coding v1.0.0. Licensed MIT.
+> Always-apply ruleset, generated from the form-rules skill v1.2.0 in
+> accessible-vibe-coding. Licensed MIT.
 >
-> Source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
+> Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
 
 > **What this is.** The single source of truth for how every form and
 > record-display page is built, on both the **admin** and **public** sides of a
@@ -156,10 +156,12 @@ entirely:
 
 The canonical markup and CSS — the form grid, its mobile-first stylesheet, and
 the read-only record display — live in [references/markup.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md). Read that file
-before writing or reviewing any form markup, and copy from it rather than
-reconstructing the grid from the rules above. It is the implementation of §2
-and §3; if the two ever disagree, §2 and §3 win and the reference file is the
-bug.
+before writing or reviewing any form markup. Use it as a concrete starting
+point only. If the reference file differs from §2 or §3, follow §2 and §3 and
+note the discrepancy in a code comment or TODO so the mismatch is explicit. If
+[references/markup.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md) is not present or cannot be read, proceed using §2 and §3
+as the sole source of truth and note in a code comment that the reference file
+was unavailable.
 
 ---
 
@@ -169,18 +171,50 @@ Every field, in DOM order:
 
 1. **Label** — always a real `<label for>` pointing at the control's `id`. Never
    placeholder-as-label. Groups of checkboxes/radios get `<fieldset>` +
-   `<legend>`.
+   `<legend>`. When a choice group sits inside a named `<form>`, the
+   `<legend>` text must remain distinct from the `<form>`'s accessible name and
+   describe the specific choice group, not restate the form heading. Do not use
+   `aria-label` on the `<fieldset>` — the `<legend>` element is the required
+   naming mechanism.
+
+   For example, if the form is named "Volunteer registration", the legend
+   should be something like "Preferred volunteer role" or "Which shifts work
+   for you?" — not "Volunteer registration".
 2. **Required marker** — visible `*` with `aria-hidden="true"`, plus the
    `required` attribute on the control. State "`*` = required" once above the
    form. Do **not** mark optional-only forms; if most fields are optional, mark
-   required ones; never mark both.
-3. **Hint** (optional) — `<p class="field-hint" id="{id}-hint">`, linked via
-   `aria-describedby`. Hints hold format guidance ("MM/DD/YYYY"), not error
-   text.
-4. **Control** — native HTML elements first (`<select>`, `<input type=date>`,
+   required ones; never mark both. For forms with only 1–2 fields, default to
+   marking required fields with `*` only. When required and optional fields are
+   evenly split or otherwise the count is not clearly weighted, mark the
+   required fields.
+3. **Control** — native HTML elements first (`<select>`, `<input type=date>`,
    etc.). A custom control is allowed only when a native one can't do the job,
    and must meet the full WCAG bar (role, name, state, keyboard).
-5. **Error** (conditional) — see §7.
+4. **Error** (conditional) — directly under the control; see §7.
+5. **Hint / tip** (optional) — displayed **below the control** (and below any
+   error), in `<p class="field-hint" id="{id}-hint">`. The control's
+   `aria-describedby` references the error id (when present) and the hint id,
+   in the order they appear on screen: error first, then hint. The error the
+   user must act on is read first. The hint opens with a visually hidden
+   prefix, `<span class="sr-only">Tip: </span>`, so screen-reader users hear
+   it as a tip rather than mistaking it for an error or part of the label:
+
+   ```html
+   <input type="email" id="email" name="email" autocomplete="email"
+          aria-invalid="true" aria-describedby="email-error email-hint">
+   <!-- render the error, and its id in aria-describedby, only on error -->
+   <p class="field-error" id="email-error">
+     Enter an email address in the format name@example.org
+   </p>
+   <p class="field-hint" id="email-hint">
+     <span class="sr-only">Tip: </span>
+     We send your confirmation and sign-in link here.
+   </p>
+   ```
+
+   With no error, use `aria-describedby="email-hint"`. With no hint, use
+   `aria-describedby="email-error"`. Hints hold format guidance ("MM/DD/YYYY")
+   and notes, not error text.
 6. **Autocomplete** — set `autocomplete` on every field collecting personal data
    (`given-name`, `family-name`, `email`, `tel`, `street-address`,
    `postal-code`, …). This satisfies WCAG 1.3.5 and reduces re-typing (3.3.7
@@ -223,8 +257,9 @@ On a failed POST, re-render the page with an error summary **before** the form,
 and move focus to it:
 
 ```html
-<div class="error-summary" role="alert" tabindex="-1" id="error-summary">
-  <h2>There's a problem with 2 answers</h2>
+<div class="error-summary" tabindex="-1" id="error-summary"
+     role="group" aria-labelledby="error-summary-title">
+  <h2 id="error-summary-title">There's a problem with 2 answers</h2>
   <ul>
     <li>
       <a href="#email">Enter an email address in the format name@example.org</a>
@@ -239,20 +274,26 @@ and move focus to it:
 - Server sets focus by rendering `tabindex="-1"` and a tiny inline script (or
   `autofocus`-equivalent) targeting `#error-summary`; with JS off, the summary
   is still first in reading order.
+- **Focus is the only announcement — no `role="alert"`.** An alert fires, then
+  focus lands on the summary and reads it again, so every message is heard
+  twice. The summary is a named group instead: `role="group"` with
+  `aria-labelledby` pointing at its heading, so the focused summary announces
+  its count.
 - The `<title>` is prefixed with `Error:` on an error render so the failure is
   announced on page load.
 
 ### 7.2 Inline errors (per field)
 
-- Error text in `<p class="field-error" id="{id}-error">`, placed between hint
-  and control's visual slot (directly under the input in this system).
-- The control gets `aria-invalid="true"` and its `aria-describedby` includes the
-  error id (and hint id if present): `aria-describedby="email-hint
-  email-error"`.
+- Error text in `<p class="field-error" id="{id}-error">`, placed directly
+  under the control and above its hint (§5).
+- The control gets `aria-invalid="true"`, and its `aria-describedby` lists the
+  error id first, then the hint id when present, matching screen order:
+  `aria-describedby="email-error email-hint"`, or without a hint,
+  `aria-describedby="email-error"`.
 - Error styling uses color **plus** an icon or bold prefix — never color alone
   (1.4.1).
 - Error text says **how to fix it**, not just "Invalid": *"Enter an email
-  address in the format [name@example.org](mailto:name@example.org)."*
+  address in the format `name@example.org`."*
 
 ### 7.3 Behavior rules
 
@@ -264,6 +305,38 @@ and move focus to it:
 - **Multi-step flows** save drafts server-side so back/forward never loses data.
 - **Destructive or financial submissions** (payments, deletions) get a
   review/confirm step (3.3.4).
+
+### 7.4 Conditional regions
+
+The error summary, the save confirmation, and any other region that depends on
+what just happened are **not in the page until it happens**. Never ship them in
+the first render hidden with `hidden` or `display: none`, or as an empty
+heading or list waiting for a script to fill it.
+
+- **Server-rendered:** the template emits the region only on the render where
+  it applies — the error summary on a failed POST, the confirmation on a
+  successful one. Every other render leaves it out entirely.
+- **Client-side enhancement:** keep the region's markup in a `<template>`
+  element, clone it into the page when it applies, and remove it when it no
+  longer applies:
+  - Remove the error summary after a successful submit.
+  - Remove the confirmation when the user goes back to edit.
+  - A repeat submit with errors replaces the old summary — never stack a
+    second one.
+- **No heading without text, ever.** Not a hidden one, and not one the script
+  fills in later. Fill the heading before the region enters the page.
+- Everything in §7.1 still holds for an inserted summary: focus moves to it, it
+  carries `tabindex="-1"`, the `<title>` gains its `Error:` prefix, and each
+  link points at its field's `id`. The reference markup (§4) shows both the
+  server-rendered and the `<template>` version.
+
+Why it matters: `hidden` keeps the region out of the accessibility tree, so
+screen readers stay silent — but checkers that read the HTML, such as WAVE,
+report every empty heading. The protection is also one CSS rule away from
+failing: any `display` value on the container overrides `hidden`, and the
+empty headings appear in every screen reader's headings list with no warning.
+And it drifts from the server path (§1), which never renders a region that
+doesn't apply.
 
 ---
 
@@ -288,6 +361,8 @@ and move focus to it:
 - [ ] `autocomplete` attributes on all personal-data fields (1.3.5).
 - [ ] Error pattern per §7 in place; summary focus verified with a screen
   reader.
+- [ ] No empty or pre-hidden summary/confirmation regions on first load
+  (WAVE: no empty headings) — §7.4.
 - [ ] No motion/animation on validation; respects `prefers-reduced-motion`.
 - [ ] No AI/vibe-coding pitfalls from §11: icon-only controls named, no
   `<div>`/`<span>` fake buttons, no unwarranted `autofocus`, submit never
@@ -300,14 +375,17 @@ and move focus to it:
 which walks a rendered form and reports the boxes above that can be verified by
 machine:
 
-    node scripts/form-check.js path/to/form.html
-    node scripts/form-check.js https://staging.example.com/signup
+```bash
+node scripts/form-check.js path/to/form.html
+node scripts/form-check.js https://staging.example.com/signup
+```
 
 It catches what axe passes — placeholder-as-label, fake `<div>` buttons,
 disabled submits, unnamed forms, missing `autocomplete`, ungrouped radios,
 dangling `aria-describedby`, positive `tabindex`, sub-24px targets, blocked
-paste — cites the section each finding violates, and exits non-zero when a gate
-fails, so it drops into CI unchanged. Run it alongside axe, never instead of it:
+paste, empty headings and pre-hidden summary or confirmation regions — cites
+the section each finding violates, and exits non-zero when a gate fails, so it
+drops into CI unchanged. Run it alongside axe, never instead of it:
 the accessibility-rules ruleset's `axe-check.js` covers the rules this one
 deliberately skips.
 
@@ -433,6 +511,15 @@ reasoning failures.
   or a client-rendered route swaps the form, move focus to that step's heading
   and update the page `<title>` (or an equivalent announcement) so the user
   isn't left focused on a control that no longer exists.
+- **Don't pre-render hidden placeholders for the error summary or
+  confirmation.** Shipping the region on first load with `hidden` and an empty
+  `<h2>` for a script to fill is the shape a show/hide script reaches for
+  first, and it looks harmless: screen readers stay silent, and axe passes it
+  because axe skips what is hidden. It still fails WAVE's empty-heading check,
+  which reads the HTML, and it breaks silently the day a stylesheet gives the
+  container a `display` value — `hidden` is overridden, the empty headings
+  land in every screen reader's headings list, and nothing flags it. Render
+  the region only when it applies, per §7.4.
 - **Never rely on a single sensory characteristic to identify a field or
   instruction** — "the field on the right," "the green button" — pair any such
   reference with text (1.3.3).
