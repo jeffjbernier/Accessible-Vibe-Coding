@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<!--
+  form-check fixture: MUST FAIL §10.1.
+
+  role="none" used to dodge §6/§10 on a form that is not a single-button
+  form: it has a real field besides its button. The exception is only for a
+  form whose only control is one button; this one needs a name instead.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Newsletter – form-check fixture</title>
+  <style>
+    button { min-height: 44px; padding: 0.5rem 1rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Newsletter</h1>
+
+    <form method="post" action="/subscribe" role="none" id="newsletter-form">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" autocomplete="email">
+      <button type="submit">Subscribe</button>
+    </form>
+  </main>
+</body>
+</html>

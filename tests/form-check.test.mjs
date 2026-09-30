@@ -64,3 +64,22 @@ test('§7.4: passes a page that keeps those regions in <template> until they app
   assert.deepEqual(report.findings, []);
   assert.equal(status, 0);
 });
+
+test('§10.1: passes a single-button form that takes role="none" and no name', () => {
+  const { status, report } = runCheck('single-button-role-none.html');
+
+  assert.deepEqual(report.findings, []);
+  assert.equal(status, 0);
+});
+
+test('§10.1: fails role="none" on a form that has a real field besides its button', () => {
+  const { status, report } = runCheck('role-none-hides-a-real-form.html');
+
+  assert.equal(status, EXIT_GATE_FAILED);
+
+  const [misuse] = findingsFor(report, 'role-none-form');
+  assert.ok(misuse, 'expected a role-none-form finding');
+  assert.equal(misuse.level, 'FAIL');
+  assert.match(misuse.section, /§10/);
+  assert.deepEqual(misuse.elements, ['#newsletter-form']);
+});

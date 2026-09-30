@@ -182,10 +182,30 @@ function auditForms() {
       'Placeholder used as the label. Placeholders vanish on input and are not labels — add a real <label for>.',
       placeholderOnly.map(sel));
 
+  // --- §10.1 exception: a single-button form takes role="none", no name ---
+  // Its only control is one button; hidden inputs (the CSRF token) do not
+  // count. Named, NVDA says it twice; unnamed, it says "section".
+  const isRoleNone = (f) => (f.getAttribute('role') || '').trim().toLowerCase() === 'none';
+  const isSingleButtonForm = (f) => {
+    const buttons = f.querySelectorAll(
+      'button, input[type="submit"], input[type="button"], input[type="image"]'
+    );
+    const fields = [...f.querySelectorAll('input, select, textarea')].filter(
+      el => !['hidden', 'submit', 'button', 'reset', 'image'].includes((el.type || '').toLowerCase())
+    );
+    return buttons.length === 1 && fields.length === 0;
+  };
+  const roleNoneMisused = forms.filter(f => isRoleNone(f) && !isSingleButtonForm(f));
+  add('role-none-form', 'FAIL', '§10.1',
+      'role="none" is only for a form whose only control is one button. This form has more; give it an accessible name instead.',
+      roleNoneMisused.map(sel));
+
   // --- §6 / §10: every form has a unique accessible name ---
-  const unnamedForms = forms.filter(f => !accName(f) && !f.getAttribute('title'));
+  const unnamedForms = forms.filter(
+    f => !accName(f) && !f.getAttribute('title') && !(isRoleNone(f) && isSingleButtonForm(f))
+  );
   add('form-name', 'FAIL', '§6, §10',
-      'Form has no accessible name. Point aria-labelledby at the visible heading, or use aria-label.',
+      'Form has no accessible name. Point aria-labelledby at the visible heading, or use aria-label (or role="none" on a single-button form, §10.1).',
       unnamedForms.map(sel));
 
   if (forms.length > 1) {

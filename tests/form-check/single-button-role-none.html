@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+  form-check fixture: MUST PASS §10.1.
+
+  A named contact form beside a Sign out form, built the §10.1 exception way:
+  its only control is one button, so it takes role="none" and no accessible
+  name. Named, NVDA says "Sign out, form, Sign out, button"; unnamed, it says
+  "section"; role="none" gives "Sign out, button" (NVDA 2026.2 + Chrome,
+  30 Sep 2026). The hidden CSRF input does not count as a control.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact us – form-check fixture</title>
+  <style>
+    button { min-height: 44px; padding: 0.5rem 1rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <form method="post" action="/logout" role="none">
+      <input type="hidden" name="_csrf" value="token">
+      <button type="submit">Sign out</button>
+    </form>
+  </header>
+  <main>
+    <h1 id="contact-form-heading">Contact us</h1>
+
+    <form method="post" action="/contact" novalidate class="form-grid"
+          id="contact-form" aria-labelledby="contact-form-heading">
+      <label for="email">Email</label>
+      <div class="field">
+        <input type="email" id="email" name="email" autocomplete="email">
+      </div>
+      <div class="form-actions">
+        <button type="submit">Send</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
