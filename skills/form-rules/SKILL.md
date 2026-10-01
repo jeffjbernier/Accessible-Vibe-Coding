@@ -50,7 +50,7 @@ metadata:
 6. **Every form has an accessible name.** A `<form>` is an assistive-tech
    landmark once it's named — never ship a bare `<form>` with no
    `aria-label`/`aria-labelledby`, even when it's the only form on the page. See
-   §10.
+   §10, including its one exception for single-button forms.
 
 ---
 
@@ -336,7 +336,8 @@ doesn't apply.
 - [ ] Every control has a programmatic label; groups use `fieldset`/`legend`.
 - [ ] Every `<form>` has an accessible name — `aria-labelledby` pointing to a
   visible heading, or `aria-label` when there's none. Names are unique if the
-  page has more than one form (§10).
+  page has more than one form (§10). A single-button form takes `role="none"`
+  instead (§10.1 exception).
 - [ ] Logical DOM order = visual order; tab order needs no `tabindex` > 0 (none
   allowed).
 - [ ] Focus visible on every interactive element (`:focus-visible`,
@@ -372,7 +373,8 @@ node scripts/form-check.js https://staging.example.com/signup
 ```
 
 It catches what axe passes — placeholder-as-label, fake `<div>` buttons,
-disabled submits, unnamed forms, missing `autocomplete`, ungrouped radios,
+disabled submits, unnamed forms, `role="none"` on anything but a
+single-button form, missing `autocomplete`, ungrouped radios,
 dangling `aria-describedby`, positive `tabindex`, sub-24px targets, blocked
 paste, empty headings and pre-hidden summary or confirmation regions — cites
 the section each finding violates, and exits non-zero when a gate fails, so it
@@ -422,6 +424,14 @@ main content form, and a footer newsletter signup all on the same page.
   no `aria-label` or `aria-labelledby` — required even when it's the only form
   on the page, so the pattern doesn't silently break the next time a second form
   is added.
+
+- **Exception — single-button forms.** A `<form>` whose only control is one
+  button (a row action, Sign out) takes `role="none"` and no accessible name.
+  The button names the action. A named form makes NVDA say it twice ("Sign
+  out, form, Sign out, button"), and an unnamed one is announced as
+  "section". `role="none"` removes the landmark, and the form still submits.
+  Hidden inputs such as the CSRF token don't count as controls. Measured with
+  NVDA 2026.2 and Chrome, 30 Sep 2026.
 
 - **Prefer `aria-labelledby` pointing at a visible heading.** When the form
   already sits under a visible `<h1>`/`<h2>` that describes it ("Contact us",
