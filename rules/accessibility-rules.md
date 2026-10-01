@@ -151,6 +151,17 @@ focus, responds to Escape, and returns focus on close.
 - Use landmark roles: `<nav>`, `<main>`, `<aside>`. Ensure the page has exactly
   one `<main>`.
 - Add aria-current="page" to the active link in navigation.
+- A button or link with a visible sentence explaining it (what it sends,
+  where it goes) must have that sentence read once, as part of the
+  control, by Tab and by arrow keys alike. Put a visually hidden copy
+  inside the control after its visible label, so the accessible name
+  still starts with the label (SC 2.5.3), and set aria-hidden="true" on
+  the visible sentence. Render the text from one variable so the copies
+  cannot drift. Do not use aria-describedby for this: as a visible line
+  plus a description, NVDA reads it twice in browse mode; with the line
+  hidden, arrow keys never read it, because a description is only
+  announced on focus (NVDA + Chrome, 1 Oct 2026). Form field hints are
+  out of scope: they follow the `form-rules` field anatomy.
 - For complex widgets, follow WAI-ARIA Authoring Practices patterns exactly —
   don't improvise ARIA role combinations.
 - If a custom widget pattern is needed, inline the critical pattern directly in
