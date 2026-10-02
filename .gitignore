@@ -114,6 +114,8 @@ snapshots/diff/
 # ---------------------------------------------------------------
 .claude/settings.local.json
 .claude/local/
+# Per-machine MCP server config; can carry tokens and local paths.
+/.mcp.json
 .aider*
 .cursorignore
 .continue/
