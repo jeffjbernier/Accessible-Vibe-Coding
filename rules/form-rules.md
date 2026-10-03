@@ -274,6 +274,22 @@ and move focus to it:
 - Server sets focus by rendering `tabindex="-1"` and a tiny inline script (or
   `autofocus`-equivalent) targeting `#error-summary`; with JS off, the summary
   is still first in reading order.
+- **Post to the summary's anchor.** Every form that can come back with the
+  summary has an `action` ending `#error-summary`
+  (`action="/register/contact#error-summary"`). Focus alone is not enough: on
+  the re-rendered page NVDA reads the focused summary, then restores its
+  reading position from before the submit, mid-form, so the user's next Down
+  Arrow or Tab starts there instead of at the summary. With the anchor, the
+  refused page's address carries it, and the reading position lands on the
+  summary; Tab then reaches its first link. Measured with NVDA and Chrome,
+  2 Oct 2026, on an admin form and on a public registration step (six refused
+  submits out of six). A marker query string does not help: the restore
+  happened even when the POST address already differed from the form page's.
+  - A successful submit's redirect inherits the anchor (browsers carry a
+    request's fragment to a `Location` that has none). Nothing on the
+    destination has that id, so nothing moves; accept it.
+  - Single-button forms (`role="none"`, §10.1) never render the summary and
+    keep their plain `action`.
 - **Focus is the only announcement — no `role="alert"`.** An alert fires, then
   focus lands on the summary and reads it again, so every message is heard
   twice. The summary is a named group instead: `role="group"` with
@@ -328,7 +344,9 @@ heading or list waiting for a script to fill it.
 - Everything in §7.1 still holds for an inserted summary: focus moves to it, it
   carries `tabindex="-1"`, the `<title>` gains its `Error:` prefix, and each
   link points at its field's `id`. The reference markup (§4) shows both the
-  server-rendered and the `<template>` version.
+  server-rendered and the `<template>` version. Keep the `#error-summary`
+  `action` too: the script stops the submit, so the anchor only matters when
+  the server refuses what the script let through.
 
 Why it matters: `hidden` keeps the region out of the accessibility tree, so
 screen readers stay silent — but checkers that read the HTML, such as WAVE,
@@ -362,6 +380,9 @@ doesn't apply.
 - [ ] `autocomplete` attributes on all personal-data fields (1.3.5).
 - [ ] Error pattern per §7 in place; summary focus verified with a screen
   reader.
+- [ ] The form's `action` ends `#error-summary`, so after a refused submit the
+  screen reader's reading position starts at the summary, not mid-form
+  (§7.1).
 - [ ] No empty or pre-hidden summary/confirmation regions on first load
   (WAVE: no empty headings) — §7.4.
 - [ ] No motion/animation on validation; respects `prefers-reduced-motion`.
@@ -504,6 +525,10 @@ reasoning failures.
   and disorients screen-reader and keyboard users (3.2.1). Reserve programmatic
   focus-moving for the error-summary pattern in §7.1 and the step-change pattern
   below.
+- **Don't post a form to its bare address.** `action="/register/contact"` looks
+  complete, and the summary even takes focus on the refused render, so nothing
+  seems wrong until a screen-reader user's next keystroke starts mid-form. Post
+  to `action="/register/contact#error-summary"` (§7.1).
 - **Never permanently `disable` the submit button to block invalid submission.**
   A disabled button is unfocusable and silent to assistive tech, so "why can't I
   submit?" goes unanswered. Leave it enabled, let the submit happen, and
