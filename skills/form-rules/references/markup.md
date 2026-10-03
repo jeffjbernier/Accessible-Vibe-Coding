@@ -18,8 +18,11 @@ Contents:
 
 ```html
 <h1 id="contact-form-heading">Contact us</h1>
-<form method="post" action="/register/contact" novalidate class="form-grid"
-      id="contact-form" aria-labelledby="contact-form-heading">
+<!-- the action ends #error-summary so a refused submit starts the screen
+     reader at the summary (SKILL.md §7.1) -->
+<form method="post" action="/register/contact#error-summary" novalidate
+      class="form-grid" id="contact-form"
+      aria-labelledby="contact-form-heading">
 
   <!-- general input -->
   <label for="first-name">
@@ -93,7 +96,10 @@ save.
 ### Server-rendered
 
 The template emits the summary only when there are errors. Place it directly
-before the `<form>`:
+before the `<form>`. The form posts to `…#error-summary` (see the form grid
+above), so the refused page's address carries the anchor: focus moves to the
+summary, and so does the screen reader's reading position, which NVDA would
+otherwise restore to where it was before the submit (SKILL.md §7.1).
 
 ```php
 <title><?= $errors ? 'Error: ' : '' ?>Contact us</title>
