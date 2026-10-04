@@ -3,7 +3,7 @@ name: form-rules
 description: Use when creating or modifying any HTML form, form field, form partial, or form template, on the admin or public side of any app or site, or any page or partial that displays a single database record. Applies to hand-written and AI-generated code alike, even when the request never mentions layout, grid, tokens, validation, or accessibility.
 license: MIT
 metadata:
-  version: 1.2.0
+  version: 1.3.0
   source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
@@ -397,7 +397,8 @@ It catches what axe passes — placeholder-as-label, fake `<div>` buttons,
 disabled submits, unnamed forms, `role="none"` on anything but a
 single-button form, missing `autocomplete`, ungrouped radios,
 dangling `aria-describedby`, positive `tabindex`, sub-24px targets, blocked
-paste, empty headings and pre-hidden summary or confirmation regions — cites
+paste, empty headings, pre-hidden summary or confirmation regions, and POST
+forms whose `action` lacks the `#error-summary` anchor — cites
 the section each finding violates, and exits non-zero when a gate fails, so it
 drops into CI unchanged. Run it alongside axe, never instead of it:
 the accessibility-rules skill's `axe-check.js` covers the rules this one
