@@ -130,7 +130,9 @@ function auditForms() {
     while (node && node.nodeType === 1 && parts.length < 4) {
       let part = node.tagName.toLowerCase();
       if (node.id) { parts.unshift(`#${node.id}`); break; }
-      if (node.name) part += `[name="${node.name}"]`;
+      // The attribute: on a form, a field named "name" replaces .name.
+      const name = node.getAttribute('name');
+      if (name) part += `[name="${name}"]`;
       else if (node.classList.length) part += `.${node.classList[0]}`;
       else {
         const sibs = [...(node.parentNode ? node.parentNode.children : [])]
@@ -324,6 +326,36 @@ function auditForms() {
   add('dangling-reference', 'FAIL', '§5, §7',
       'Attribute references an id that does not exist on the page. The hint or error it points at is announced to nobody.',
       dangling.map(sel));
+
+  // --- §7.1: a form that can come back with the summary posts to its anchor ---
+  // Focus alone is not enough: after a refused submit NVDA restores its
+  // reading position mid-form unless the address carries #error-summary. A GET
+  // form and a single-button form never render the summary, so they are out
+  // of scope. A missing action posts to the page's own bare address.
+  // Attributes, not properties: a field named "method" or "action" replaces
+  // the form's own property. A submit button's formmethod and formaction
+  // override the form's, so each button is judged on what it sends.
+  const SUMMARY_ANCHOR = '#error-summary';
+  const SUBMITTERS =
+    'button:not([type]), button[type="submit"], input[type="submit"], input[type="image"]';
+  const sendsUnanchoredPost = (f, button) => {
+    const method = (button && button.getAttribute('formmethod')) || f.getAttribute('method');
+    const action = button && button.hasAttribute('formaction')
+      ? button.getAttribute('formaction')
+      : f.getAttribute('action');
+    return (method || '').trim().toLowerCase() === 'post' &&
+      !(action || '').trim().endsWith(SUMMARY_ANCHOR);
+  };
+  const unanchored = forms.filter(f => {
+    if (isSingleButtonForm(f)) return false;
+    const buttons = [...f.querySelectorAll(SUBMITTERS)];
+    return buttons.length
+      ? buttons.some(button => sendsUnanchoredPost(f, button))
+      : sendsUnanchoredPost(f, null);
+  });
+  add('summary-anchor', 'FAIL', '§7.1',
+      `Form posts to its bare address. Give it an action ending ${SUMMARY_ANCHOR} so a screen reader's reading position starts at the error summary after a refused submit, not mid-form.`,
+      unanchored.map(sel));
 
   // --- §7.4: conditional regions are absent until they apply ---
   // Checked across the whole body, not just the forms: the error summary and

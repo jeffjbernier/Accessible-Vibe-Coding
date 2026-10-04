@@ -65,6 +65,27 @@ test('§7.4: passes a page that keeps those regions in <template> until they app
   assert.equal(status, 0);
 });
 
+test('§7.1: fails a POST form that does not post to #error-summary', () => {
+  const { status, report } = runCheck('summary-anchor-missing.html');
+
+  assert.equal(status, EXIT_GATE_FAILED);
+
+  const [anchor] = findingsFor(report, 'summary-anchor');
+  assert.ok(anchor, 'expected a summary-anchor finding');
+  assert.equal(anchor.level, 'FAIL');
+  assert.match(anchor.section, /§7\.1/);
+  // The GET search, the single-button Sign out, the anchored newsletter form
+  // and the application form (anchored formaction) are absent. The callback
+  // form's fields named "method" and "name" must not hide it or garble its
+  // selector, and the filter form's posting button must not be missed.
+  assert.deepEqual(anchor.elements, [
+    '#contact-form',
+    '#feedback-form',
+    'html > body > main > form[name="callback"]',
+    '#filter-form',
+  ]);
+});
+
 test('§10.1: passes a single-button form that takes role="none" and no name', () => {
   const { status, report } = runCheck('single-button-role-none.html');
 

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--
+  form-check fixture: MUST FAIL §7.1 (summary-anchor).
+
+  Two POST forms that can come back with the error summary post to their
+  bare address: the contact form names one, the feedback form has no action
+  at all, so it posts to the page's own address. After a refused submit, NVDA
+  restores its reading position mid-form instead of on the summary (NVDA +
+  Chrome, 2 Oct 2026). Both must be flagged.
+
+  Two more must be flagged for reasons a property read would miss. The
+  callback form has fields named "method" and "name", which shadow the
+  form's own method and name properties; the checker must read attributes.
+  It has no id, so it is reported by its name attribute. The filter form is
+  a GET form whose "Save this search" button posts (formmethod) to a bare
+  formaction.
+
+  Four forms must NOT be flagged: the GET site search (it never renders the
+  summary), the single-button Sign out form (§10.1; it keeps its plain
+  action), the newsletter form, which already posts to #error-summary, and
+  the application form, whose bare action is overridden by its only submit
+  button's anchored formaction.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact us – form-check fixture</title>
+  <style>
+    button { min-height: 44px; padding: 0.5rem 1rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <form role="search" method="get" action="/search" aria-label="Site search">
+      <label for="q">Search</label>
+      <input type="search" id="q" name="q">
+      <button type="submit">Search</button>
+    </form>
+    <form method="post" action="/logout" role="none">
+      <input type="hidden" name="_csrf" value="token">
+      <button type="submit">Sign out</button>
+    </form>
+  </header>
+  <main>
+    <h1 id="contact-form-heading">Contact us</h1>
+
+    <form method="post" action="/register/contact" novalidate class="form-grid"
+          id="contact-form" aria-labelledby="contact-form-heading">
+      <label for="email">Email</label>
+      <div class="field">
+        <input type="email" id="email" name="email" autocomplete="email">
+      </div>
+      <div class="form-actions">
+        <button type="submit">Send</button>
+      </div>
+    </form>
+
+    <h2 id="feedback-form-heading">Tell us how we did</h2>
+
+    <form method="post" novalidate class="form-grid"
+          id="feedback-form" aria-labelledby="feedback-form-heading">
+      <label for="comments">Comments</label>
+      <div class="field">
+        <textarea id="comments" name="comments" rows="4"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit">Send feedback</button>
+      </div>
+    </form>
+
+    <h2 id="newsletter-form-heading">Get the newsletter</h2>
+
+    <form method="post" action="/subscribe#error-summary" novalidate
+          class="form-grid" id="newsletter-form"
+          aria-labelledby="newsletter-form-heading">
+      <label for="newsletter-email">Email</label>
+      <div class="field">
+        <input type="email" id="newsletter-email" name="newsletter-email"
+               autocomplete="email">
+      </div>
+      <div class="form-actions">
+        <button type="submit">Subscribe</button>
+      </div>
+    </form>
+
+    <h2 id="callback-form-heading">Ask us to contact you</h2>
+
+    <form method="post" action="/callback" novalidate class="form-grid"
+          name="callback" aria-labelledby="callback-form-heading">
+      <label for="callback-name">Your name</label>
+      <div class="field">
+        <input type="text" id="callback-name" name="name" autocomplete="name">
+      </div>
+      <fieldset>
+        <legend>How should we reach you?</legend>
+        <input type="radio" id="method-phone" name="method" value="phone">
+        <label for="method-phone">Phone</label>
+        <input type="radio" id="method-email" name="method" value="email">
+        <label for="method-email">Email</label>
+      </fieldset>
+      <div class="form-actions">
+        <button type="submit">Request a call</button>
+      </div>
+    </form>
+
+    <h2 id="filter-form-heading">Find a session</h2>
+
+    <form method="get" action="/sessions" class="form-grid" id="filter-form"
+          aria-labelledby="filter-form-heading">
+      <label for="topic">Topic</label>
+      <div class="field">
+        <input type="text" id="topic" name="topic">
+      </div>
+      <div class="form-actions">
+        <button type="submit">Show sessions</button>
+        <button type="submit" formmethod="post"
+                formaction="/saved-searches">Save this search</button>
+      </div>
+    </form>
+
+    <h2 id="apply-form-heading">Apply to speak</h2>
+
+    <form method="post" action="/apply" novalidate class="form-grid"
+          id="apply-form" aria-labelledby="apply-form-heading">
+      <label for="talk-title">Talk title</label>
+      <div class="field">
+        <input type="text" id="talk-title" name="talk-title">
+      </div>
+      <div class="form-actions">
+        <button type="submit" formaction="/apply#error-summary">Apply</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

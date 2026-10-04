@@ -13,7 +13,7 @@
 > Applies to hand-written and AI-generated code alike, even when the request
 > never mentions layout, grid, tokens, validation, or accessibility.
 >
-> Always-apply ruleset, generated from the form-rules skill v1.2.0 in
+> Always-apply ruleset, generated from the form-rules skill v1.3.0 in
 > accessible-vibe-coding. Licensed MIT.
 >
 > Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
@@ -406,7 +406,8 @@ It catches what axe passes — placeholder-as-label, fake `<div>` buttons,
 disabled submits, unnamed forms, `role="none"` on anything but a
 single-button form, missing `autocomplete`, ungrouped radios,
 dangling `aria-describedby`, positive `tabindex`, sub-24px targets, blocked
-paste, empty headings and pre-hidden summary or confirmation regions — cites
+paste, empty headings, pre-hidden summary or confirmation regions, and POST
+forms whose `action` lacks the `#error-summary` anchor — cites
 the section each finding violates, and exits non-zero when a gate fails, so it
 drops into CI unchanged. Run it alongside axe, never instead of it:
 the accessibility-rules ruleset's `axe-check.js` covers the rules this one
