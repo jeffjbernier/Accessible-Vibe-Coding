@@ -5,6 +5,7 @@ description: Reviews visual and UX quality of pages and components by reading
   color, spacing, and mobile responsiveness issues with specific fix suggestions.
   Never modifies code.
 tools: Read, Glob, Grep
+model: sonnet
 skills:
   - accessibility-rules
 ---
