@@ -202,11 +202,11 @@ function auditForms() {
       'role="none" is only for a form whose only control is one button. This form has more; give it an accessible name instead.',
       roleNoneMisused.map(sel));
 
-  // --- §6 / §10: every form has a unique accessible name ---
+  // --- §1 / §10: every form has a unique accessible name ---
   const unnamedForms = forms.filter(
     f => !accName(f) && !f.getAttribute('title') && !(isRoleNone(f) && isSingleButtonForm(f))
   );
-  add('form-name', 'FAIL', '§6, §10',
+  add('form-name', 'FAIL', '§1, §10',
       'Form has no accessible name. Point aria-labelledby at the visible heading, or use aria-label (or role="none" on a single-button form, §10.1).',
       unnamedForms.map(sel));
 
