@@ -178,8 +178,12 @@ function build(name) {
     `> Source: <${source}>`,
   ].join('\n');
 
+  // A skill that opens with its own blockquote would be split from the
+  // trigger by a blank line (MD028), so continue one quote into the other.
   const at = heading.index + heading[0].length;
-  body = `${body.slice(0, at)}\n\n${trigger}${body.slice(at)}`;
+  const rest = body.slice(at).replace(/^\n+/, '');
+  const gap = rest.startsWith('>') ? '\n>\n' : '\n\n';
+  body = `${body.slice(0, at)}\n\n${trigger}${gap}${rest}`;
 
   const banner = [
     '<!--',

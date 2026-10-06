@@ -17,7 +17,7 @@
 > accessible-vibe-coding. Licensed MIT.
 >
 > Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
-
+>
 > **What this is.** The single source of truth for how every form and
 > record-display page is built, on both the **admin** and **public** sides of a
 > project, with **WCAG 2.2 AA as a hard release gate**.
