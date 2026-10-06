@@ -155,13 +155,13 @@ entirely:
 ## 4. Reference markup + CSS
 
 The canonical markup and CSS — the form grid, its mobile-first stylesheet, and
-the read-only record display — live in [references/markup.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md). Read that file
-before writing or reviewing any form markup. Use it as a concrete starting
-point only. If the reference file differs from §2 or §3, follow §2 and §3 and
-note the discrepancy in a code comment or TODO so the mismatch is explicit. If
-[references/markup.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md) is not present or cannot be read, proceed using §2 and §3
-as the sole source of truth and note in a code comment that the reference file
-was unavailable.
+the read-only record display — live in [references/markup.md][markup]. Read
+that file before writing or reviewing any form markup. Use it as a concrete
+starting point only. If the reference file differs from §2 or §3, follow §2
+and §3 and note the discrepancy in a code comment or TODO so the mismatch is
+explicit. If [references/markup.md][markup] is not present or cannot be read,
+proceed using §2 and §3 as the sole source of truth and note in a code
+comment that the reference file was unavailable.
 
 ---
 
@@ -563,3 +563,5 @@ reasoning failures.
 ---
 
 *Update this file first, then the code.*
+
+[markup]: https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md

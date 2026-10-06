@@ -40,32 +40,28 @@ const check = process.argv.includes('--check');
  * ------------------------------------------------------------------ */
 
 const rewrites = {
-  'accessibility-rules': (blob) => [
+  'accessibility-rules': () => [
     [
-      '**Relationship to the form-rules skill.** For form layout, grid, tokens, and the\nerror pattern, the `form-rules` skill is the source of truth.',
-      '**Relationship to the form-rules ruleset.** For form layout, grid, tokens,\nand the error pattern, the companion `form-rules` file is the source of truth.',
+      '**Relationship to the form-rules skill.** For form layout, grid, tokens, and the\nerror pattern, the `form-rules` skill is the source of truth. Where the two\noverlap, form-rules wins. Touch-target sizing is defined once in "Touch and\npointer" and applies across this file.',
+      '**Relationship to the form-rules ruleset.** For form layout, grid, tokens,\nand the error pattern, the companion `form-rules` file is the source of\ntruth. Where the two overlap, form-rules wins. Touch-target sizing is\ndefined once in "Touch and pointer" and applies across this file.',
     ],
     [
       'apply whenever this skill is\nloaded, whether or not the request mentions',
       'apply whenever this file is\nloaded, whether or not the request mentions',
     ],
     [
-      '- The project may include `scripts/axe-check.js`; if present, it can be used to',
-      `- The project may include [scripts/axe-check.js](${blob}/skills/accessibility-rules/scripts/axe-check.js); if present, it can be used to`,
+      '- The project may include `scripts/axe-check.js`; if present, it can be used to\n  drive axe-core over a URL or a local HTML file:',
+      '- The project may include [scripts/axe-check.js][axe-check]; if present, it\n  can be used to drive axe-core over a URL or a local HTML file:',
     ],
     [
       'runtime (including `references/patterns.md`).',
-      `runtime (including [references/patterns.md](${blob}/skills/accessibility-rules/references/patterns.md)).`,
+      'runtime (including [references/patterns.md][patterns]).',
     ],
   ],
   'form-rules': (blob) => [
     [
-      'live in `references/markup.md`. Read that file',
-      `live in [references/markup.md](${blob}/skills/form-rules/references/markup.md). Read that file`,
-    ],
-    [
-      '`references/markup.md` is not present or cannot be read,',
-      `[references/markup.md](${blob}/skills/form-rules/references/markup.md) is not present or cannot be read,`,
+      'the read-only record display — live in `references/markup.md`. Read that file\nbefore writing or reviewing any form markup. Use it as a concrete starting\npoint only. If the reference file differs from §2 or §3, follow §2 and §3 and\nnote the discrepancy in a code comment or TODO so the mismatch is explicit. If\n`references/markup.md` is not present or cannot be read, proceed using §2 and §3\nas the sole source of truth and note in a code comment that the reference file\nwas unavailable.',
+      'the read-only record display — live in [references/markup.md][markup]. Read\nthat file before writing or reviewing any form markup. Use it as a concrete\nstarting point only. If the reference file differs from §2 or §3, follow §2\nand §3 and note the discrepancy in a code comment or TODO so the mismatch is\nexplicit. If [references/markup.md][markup] is not present or cannot be read,\nproceed using §2 and §3 as the sole source of truth and note in a code\ncomment that the reference file was unavailable.',
     ],
     [
       '**Checking the mechanical half.** This skill bundles `scripts/form-check.js`,',
@@ -84,6 +80,19 @@ const rewrites = {
       'treat every line as its own gate. `form-check.js` (see §8) catches the',
     ],
   ],
+};
+
+// A full URL inline pushes its line past 80 columns (MD013), so the
+// rewrites above that would put one mid-line use a reference link instead,
+// and the definition goes at the end of the file.
+const links = {
+  'accessibility-rules': (blob) => ({
+    'axe-check': `${blob}/skills/accessibility-rules/scripts/axe-check.js`,
+    patterns: `${blob}/skills/accessibility-rules/references/patterns.md`,
+  }),
+  'form-rules': (blob) => ({
+    markup: `${blob}/skills/form-rules/references/markup.md`,
+  }),
 };
 
 /* ------------------------------------------------------------------ */
@@ -196,7 +205,10 @@ function build(name) {
     '',
   ].join('\n');
 
-  const out = `${banner}${body.replace(/\s*$/, '')}\n`;
+  const defs = Object.entries(links[name]?.(blob) ?? {})
+    .map(([label, url]) => `[${label}]: ${url}`)
+    .join('\n');
+  const out = `${banner}${body.replace(/\s*$/, '')}\n${defs ? `\n${defs}\n` : ''}`;
 
   // A rules file that still carries a repo-relative path is broken the moment
   // someone copies it out of this repo.

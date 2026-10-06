@@ -36,9 +36,9 @@ found and the recommended fixes, so the developer can address them
 deliberately.
 
 **Relationship to the form-rules ruleset.** For form layout, grid, tokens,
-and the error pattern, the companion `form-rules` file is the source of truth. Where the two
-overlap, form-rules wins. Touch-target sizing is defined once in "Touch and
-pointer" and applies across this file.
+and the error pattern, the companion `form-rules` file is the source of
+truth. Where the two overlap, form-rules wins. Touch-target sizing is
+defined once in "Touch and pointer" and applies across this file.
 
 ## Accessibility Guidelines
 
@@ -166,7 +166,7 @@ focus, responds to Escape, and returns focus on close.
   don't improvise ARIA role combinations.
 - If a custom widget pattern is needed, inline the critical pattern directly in
   the output instead of relying on external references that are not available at
-  runtime (including [references/patterns.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/accessibility-rules/references/patterns.md)). When a rule and an example
+  runtime (including [references/patterns.md][patterns]). When a rule and an example
   disagree, the rule wins.
 
 ## Navigation aids
@@ -351,8 +351,8 @@ project fits and ask before building:
   audit and fix every violation before presenting the output. For isolated
   utility code (for example, a single CSS variable or helper function with no
   DOM output), apply the relevant hard rules inline and skip the full audit.
-- The project may include [scripts/axe-check.js](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/accessibility-rules/scripts/axe-check.js); if present, it can be used to
-  drive axe-core over a URL or a local HTML file:
+- The project may include [scripts/axe-check.js][axe-check]; if present, it
+  can be used to drive axe-core over a URL or a local HTML file:
 
       node scripts/axe-check.js path/to/page.html
       node scripts/axe-check.js https://staging.example.com/signup
@@ -447,3 +447,6 @@ deliverable:
 - Real-device touch testing.
 - axe-core / Lighthouse in the project's CI pipeline, with all violations fixed
   before merging.
+
+[axe-check]: https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/accessibility-rules/scripts/axe-check.js
+[patterns]: https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/accessibility-rules/references/patterns.md
