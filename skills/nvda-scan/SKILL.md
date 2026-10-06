@@ -109,7 +109,8 @@ title. Adjust the path if the skill is installed project-scoped under
 `.claude/skills/` instead of `~/.claude/skills/`:
 
 ```powershell
-& "$HOME\.claude\skills\nvda-scan\scripts\activate-chrome.ps1" -Title "Donate"; "exit: $LASTEXITCODE"
+$script = "$HOME\.claude\skills\nvda-scan\scripts\activate-chrome.ps1"
+& $script -Title "Donate"; "exit: $LASTEXITCODE"
 ```
 
 Never fall back to `AppActivate` or to a synthetic key press. Windows
@@ -153,6 +154,7 @@ times it spoke.
 
 ## Rationalization table
 
+<!-- markdownlint-disable MD013 -->
 | Excuse | Reality |
 | --- | --- |
 | "I just confirmed Chrome, the next key is safe in the same call" | Parallel calls cannot see each other's results. The title check only protects the keys sent after you read it. |
@@ -161,6 +163,7 @@ times it spoke.
 | "Six keys is too slow, I'll send twelve" | A batch is only as safe as its first key. Twelve keys in the wrong app is twelve chances to do damage. |
 | "The first utterance was enough" | Landmark, grouping, and control names arrive as separate utterances. Without `get_speech` the field name is missing from the report. |
 | "axe passed, so the ids are fine" | axe disabled its duplicate-id rules in 4.8. NVDA finds nameless fields that axe calls clean. |
+<!-- markdownlint-enable MD013 -->
 
 ## Red flags, stop and re-read this skill
 
