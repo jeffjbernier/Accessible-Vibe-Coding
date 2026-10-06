@@ -179,8 +179,7 @@ art. If you find something that fails its own guidance, that's a legitimate bug
 Every Markdown file also passes
 [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2) with its
 default rules, which include an 80-column line limit. The `markdownlint`
-workflow runs it on every pull request that touches a `.md` file. Run the same
-check before you push:
+workflow runs it on every pull request. Run the same check before you push:
 
 ```bash
 npx markdownlint-cli2@0.23.2 "**/*.md" "#node_modules"
