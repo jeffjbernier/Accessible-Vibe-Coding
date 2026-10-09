@@ -3,7 +3,7 @@ name: form-rules
 description: Use when creating or modifying any HTML form, form field, form partial, or form template, on the admin or public side of any app or site, or any page or partial that displays a single database record. Applies to hand-written and AI-generated code alike, even when the request never mentions layout, grid, tokens, validation, or accessibility.
 license: MIT
 metadata:
-  version: 1.3.0
+  version: 1.3.1
   source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
@@ -187,8 +187,11 @@ Every field, in DOM order:
    `aria-describedby` references the error id (when present) and the hint id,
    in the order they appear on screen: error first, then hint. The error the
    user must act on is read first. The hint opens with a visually hidden
-   prefix, `<span class="sr-only">Tip: </span>`, so screen-reader users hear
-   it as a tip rather than mistaking it for an error or part of the label:
+   prefix, `<span class="sr-only">Tip:&nbsp;</span>`, so screen-reader users
+   hear it as a tip rather than mistaking it for an error or part of the
+   label. End the prefix with `&nbsp;`, never a plain space: the trailing
+   space inside a visually hidden span is dropped, and NVDA reads "Tip:We
+   send..." in browse mode:
 
    ```html
    <input type="email" id="email" name="email" autocomplete="email"
@@ -198,7 +201,7 @@ Every field, in DOM order:
      Enter an email address in the format name@example.org
    </p>
    <p class="field-hint" id="email-hint">
-     <span class="sr-only">Tip: </span>
+     <span class="sr-only">Tip:&nbsp;</span>
      We send your confirmation and sign-in link here.
    </p>
    ```
