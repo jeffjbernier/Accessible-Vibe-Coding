@@ -14,7 +14,7 @@
 > Also use when a task mentions WCAG, ARIA, contrast, keyboard navigation,
 > focus, screen readers, or touch targets.
 >
-> Always-apply ruleset, generated from the accessibility-rules skill v1.2.0 in
+> Always-apply ruleset, generated from the accessibility-rules skill v1.3.0 in
 > accessible-vibe-coding. Licensed MIT.
 >
 > Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
@@ -174,6 +174,15 @@ focus, responds to Escape, and returns focus on close.
 - Include a "Skip to main content" link as the first focusable element on every
   page. Visually hidden by default, visible on keyboard focus, linking to
   `<main>` via its id.
+- Exception — a step of a multi-step flow: when a step indicator (see "Step
+  indicators") sits between the page top and the form, the skip link names the
+  step ("Skip to step 3 of 7") and links to the current step's link in the
+  indicator, so one Tab past it reaches the form. Without it, every reached
+  step is another Tab, and for someone with a significant motor impairment each
+  key press can take a gross motor movement. Give the current step a stable id
+  and render the skip link only when that target is in the page; otherwise use
+  "Skip to main content". It stays the first focusable element, and every page
+  without a current step keeps "Skip to main content".
 - On pages with multiple content regions, add secondary skip links.
 - Consistent navigation (SC 3.2.3, 3.2.4): repeated navigation keeps the same
   relative order on every page, and the same function keeps the same name and
