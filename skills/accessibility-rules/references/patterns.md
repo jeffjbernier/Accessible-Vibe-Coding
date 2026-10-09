@@ -283,7 +283,7 @@ function SignupForm({ emailError }: { emailError?: string }) {
           </p>
         )}
         <p id="email-hint" className="field-hint">
-          <span className="sr-only">Tip: </span>
+          <span className="sr-only">Tip:&nbsp;</span>
           We will never share your email.
         </p>
       </div>

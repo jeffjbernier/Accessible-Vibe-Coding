@@ -14,7 +14,7 @@
 > Also use when a task mentions WCAG, ARIA, contrast, keyboard navigation,
 > focus, screen readers, or touch targets.
 >
-> Always-apply ruleset, generated from the accessibility-rules skill v1.3.0 in
+> Always-apply ruleset, generated from the accessibility-rules skill v1.3.1 in
 > accessible-vibe-coding. Licensed MIT.
 >
 > Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>

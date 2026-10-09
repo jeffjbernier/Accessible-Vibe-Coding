@@ -3,7 +3,7 @@ name: accessibility-rules
 description: Use when creating or modifying anything a person will see, hear, or operate - a UI, web page, component, prototype, email, or dashboard - or when producing any HTML, CSS, JS, React, or template output, even a small snippet and even when the request never mentions accessibility. Also use when a task mentions WCAG, ARIA, contrast, keyboard navigation, focus, screen readers, or touch targets.
 license: MIT
 metadata:
-  version: 1.3.0
+  version: 1.3.1
   source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
