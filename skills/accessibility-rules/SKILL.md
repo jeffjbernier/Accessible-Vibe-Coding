@@ -3,7 +3,7 @@ name: accessibility-rules
 description: Use when creating or modifying anything a person will see, hear, or operate - a UI, web page, component, prototype, email, or dashboard - or when producing any HTML, CSS, JS, React, or template output, even a small snippet and even when the request never mentions accessibility. Also use when a task mentions WCAG, ARIA, contrast, keyboard navigation, focus, screen readers, or touch targets.
 license: MIT
 metadata:
-  version: 1.4.0
+  version: 1.5.0
   source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
@@ -166,16 +166,19 @@ focus, responds to Escape, and returns focus on close.
   `<main>` via its id.
 - Exception — a step of a multi-step flow: when a step indicator (see "Step
   indicators") sits between the page top and the form, the skip link names the
-  step ("Skip to step 3 of 7") and links to the step's form, so one Tab past it
-  reaches the first field. Without it, every reached step is another Tab, and
-  for someone with a significant motor impairment each key press can take a
-  gross motor movement. Link to the form, not to the current step in the
-  indicator: once a user goes back to an earlier step, the later steps are
-  links between the current one and the form. Give the form a stable id and
-  `tabindex="-1"` so it can hold the focus, and render the skip link only when
-  that target is in the page; otherwise use "Skip to main content". It stays
-  the first focusable element, and every page without a current step keeps
-  "Skip to main content".
+  step ("Skip to step 3 of 7") and links to the current step in the indicator,
+  so on the furthest step reached one Tab past it reaches the first field.
+  Without it, every reached step is another Tab, and for someone with a
+  significant motor impairment each key press can take a gross motor movement.
+  Link to the current step, not to the form: with focus on a `<form>`, NVDA
+  reads the whole form aloud in one utterance, every label and every tip
+  twice (NVDA + Chrome, 10 Oct 2026). The cost is accepted: once a user goes
+  back to an earlier step, the later steps are links between the current one
+  and the form. Give the current step a stable id, add `tabindex="-1"` when
+  it is plain text and not a link so it can hold the focus, and render the
+  skip link only when that target is in the page; otherwise use "Skip to main
+  content". It stays the first focusable element, and every page without a
+  current step keeps "Skip to main content".
 - On pages with multiple content regions, add secondary skip links.
 - Consistent navigation (SC 3.2.3, 3.2.4): repeated navigation keeps the same
   relative order on every page, and the same function keeps the same name and
