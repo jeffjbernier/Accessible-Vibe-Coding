@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Headerless single-row table – audit-tables fixtures</title>
+</head>
+<body>
+  <main>
+    <h1>A one-row table with no header cells and no caption</h1>
+
+    <!-- Probably untagged layout. The auditor warns about the missing headers;
+         the missing caption must stay a warning too, not an error. -->
+    <table>
+      <tr><td>Opening hours</td><td>Monday to Friday, 9:00 to 17:00</td></tr>
+    </table>
+  </main>
+</body>
+</html>

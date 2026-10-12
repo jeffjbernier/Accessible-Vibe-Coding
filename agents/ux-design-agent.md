@@ -7,7 +7,7 @@ description: Reviews visual and UX quality of pages and components by reading
 tools: Read, Glob, Grep
 model: sonnet
 skills:
-  - accessibility-rules
+  - accessibility
 ---
 
 # UX Design Reviewer
@@ -25,7 +25,7 @@ clearly labeled headings. If a category has no issues, write "None found."
 
 ### 1. Accessibility
 
-The `accessibility-rules` skill is preloaded into your context. Review against
+The `accessibility` skill is preloaded into your context. Review against
 every rule in it that can be judged from source. Start with its Hard rules,
 "Reject these failures", and Litmus checks, then go through the rule sections,
 which hold rules those lists leave out (skip links, reading order, reflow,
@@ -37,9 +37,9 @@ The skill's "Working model", "Self-audit", and "Recommend when appropriate"
 sections are instructions for whoever builds the page. They do not apply to a
 review, and you still never suggest running a tool.
 
-If the page is a form, say in this section that the `form-rules` skill sets the
-standard for form layout, field anatomy, and the error pattern, and that this
-review did not apply it.
+If the page is a form, say in this section that the `accessible-forms` skill
+sets the standard for form layout, field anatomy, and the error pattern, and
+that this review did not apply it.
 
 If the skill's text is not in your context, it is not installed. Say so under
 this heading, tell the user to install it from

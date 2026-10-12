@@ -1,5 +1,5 @@
 /**
- * form-check.test.mjs — regression tests for skills/form-rules/scripts/form-check.js
+ * form-check.test.mjs — regression tests for skills/accessible-forms/scripts/form-check.js
  *
  * Runs the checker against the fixture pages in tests/form-check/ and asserts
  * on its exit code and JSON findings.
@@ -18,7 +18,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const CHECKER = join(HERE, '..', 'skills', 'form-rules', 'scripts', 'form-check.js');
+const CHECKER = join(HERE, '..', 'skills', 'accessible-forms', 'scripts', 'form-check.js');
 const FIXTURES = join(HERE, 'form-check');
 const EXIT_GATE_FAILED = 1;
 const EXIT_COULD_NOT_RUN = 2;

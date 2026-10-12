@@ -47,8 +47,9 @@ node tools/build-rules.mjs
 It prints one line per file:
 
 ```text
-wrote rules/accessibility-rules.md (<N> bytes)
-wrote rules/form-rules.md (<N> bytes)
+wrote rules/accessibility.md (<N> bytes)
+wrote rules/accessible-forms.md (<N> bytes)
+wrote rules/accessible-tables.md (<N> bytes)
 ```
 
 ### Verify without writing
@@ -59,7 +60,8 @@ node tools/build-rules.mjs --check
 
 This regenerates in memory and compares against what's on disk, writing nothing.
 It exits `0` when everything matches and `1` when a file is stale, naming each
-one. This is what CI runs.
+one. It also exits `1` for a file in `rules/` that no skill produces any more,
+which is what a renamed or removed skill leaves behind. This is what CI runs.
 
 ### The normal loop
 
@@ -74,9 +76,10 @@ on every pull request that touches `skills/`, `rules/`, or the generator itself.
 
 ## Running the tests
 
-`tests/` holds regression tests for `skills/form-rules/scripts/form-check.js`:
-fixture pages it must fail or pass. The checker drives Chromium through
-Playwright, the one thing here that needs installing. Install it without
+`tests/` holds regression tests for `skills/accessible-forms/scripts/form-check.js`
+and for the table auditor in `skills/accessible-tables/scripts/`: fixture pages
+each must fail or pass. Both checkers drive Chromium through Playwright, the
+one thing here that needs installing. Install it without
 creating a `package.json`:
 
 ```bash
@@ -85,9 +88,10 @@ npx playwright install chromium
 node --test "tests/*.test.mjs"
 ```
 
-The `form-check tests` workflow runs the same commands on every pull request
-that touches `skills/form-rules/` or `tests/`. When you change what the checker
-flags, add a fixture that fails before your change and passes after it.
+The `checker tests` workflow runs the same commands on every pull request that
+touches `skills/accessible-forms/`, `skills/accessible-tables/`,
+`tools/build-rules.mjs`, or `tests/`. When you change what a checker flags,
+add a fixture that fails before your change and passes after it.
 
 ---
 
@@ -106,8 +110,14 @@ For each skill it:
    `scripts/*.js` resolve fine inside this repo and point at nothing once
    someone copies a rules file into their own project, so they become
    `blob/HEAD` links — GitHub resolves `HEAD` to whatever the default branch is
-   called, so the links survive a branch rename.
-4. **Adds a do-not-edit banner** naming the source file and the rebuild command.
+   called, so the links survive a branch rename. This is automatic for any
+   path in backticks that starts `scripts/` or `references/` and names a real
+   file in the skill's folder. Fenced code blocks are left alone.
+4. **Applies the skill's wording rewrites, if it has any.** A rules file should
+   not call itself "this skill", and that wording differs per skill, so it
+   lives in the `rewrites` table in `tools/build-rules.mjs`. A skill with no
+   entry there builds as written.
+5. **Adds a do-not-edit banner** naming the source file and the rebuild command.
 
 ---
 
@@ -122,39 +132,45 @@ for. Open `tools/build-rules.mjs`, find that entry in the `rewrites` table, and
 update the `from` string to your new wording:
 
 ```text
-Error: skills/form-rules/SKILL.md: rewrite target not found.
+Error: skills/accessible-forms/SKILL.md: rewrite target not found.
   Looked for: "live in `references/markup.md`. Read that file"...
 ```
 
-This is the guard working. It means a path that would have pointed nowhere got
-caught before it shipped.
+This is the guard working. It means wording the rules file was meant to change
+got caught before the old wording shipped.
 
-**`would ship repo-relative paths`** — you added a new reference to `scripts/…`
-or `references/…` in a skill and nothing rewrites it yet. Add an entry to the
-`rewrites` table turning it into an absolute URL.
+**`points at files the skill does not have`** — the skill names a `scripts/…`
+or `references/…` path in backticks, and no such file is in its folder. The
+generator links those paths, so each has to be real. Fix the typo, add the
+file, or reword the sentence if it means a file in the reader's own project.
 
-Both are one-line fixes in the rewrites table. Neither is a reason to edit the
-generated file directly.
+Neither is a reason to edit the generated file directly.
 
 ---
 
 ## Adding a new skill
 
-Create `skills/<name>/SKILL.md` with the same frontmatter shape the existing two
-use — `name`, `description`, `license`, and `metadata` carrying `version` and
-`source`. The generator discovers skills by directory, so it picks the new one
-up with no configuration and writes `rules/<name>.md` on the next build.
+Create `skills/<name>/SKILL.md` with the same frontmatter shape the existing
+rules skills use — `name`, `description`, `license`, and `metadata` carrying
+`version` and `source`. The generator discovers skills by directory, so it
+picks the new one up with no configuration and writes `rules/<name>.md` on the
+next build.
 
-If the new skill references its own `scripts/` or `references/` files, add a
-`rewrites` entry for each before the first build; the dangling-path check will
-fail until you do.
+Nothing in `tools/build-rules.mjs` has to name the new skill. Paths to its own
+`scripts/` and `references/` files are linked automatically. Add a `rewrites`
+entry only if a sentence should read differently in the rules file, such as one
+that says "this skill".
 
-If the skill is a procedure rather than a ruleset — a slash command someone
-types, like `a11y-scan`, or a skill that drives a live tool, like `nvda-scan` —
-add its name to `NO_RULES_FILE` in `tools/build-rules.mjs` instead. No rules
-file is generated for it, and CI does not expect one. Slash commands also set
-`disable-model-invocation: true` in their frontmatter so they never fire on
-their own and never compete with `accessibility-rules` for a trigger.
+If the skill is a procedure rather than a ruleset, it should not get a rules
+file, and its own frontmatter says so:
+
+- A slash command someone types, like `a11y-scan`, sets
+  `disable-model-invocation: true`. That also stops it firing on its own and
+  competing with `accessibility` for a trigger.
+- A skill that drives a live tool, like `nvda-scan`, sets `rules-file: false`
+  under `metadata`.
+
+The generator skips both, and CI does not expect a rules file for either.
 
 ## Adding an agent
 

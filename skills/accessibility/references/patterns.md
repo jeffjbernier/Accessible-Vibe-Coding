@@ -298,7 +298,7 @@ The inline error has no `role="alert"` on purpose. On a failed submit, the
 announcement comes from the error summary at the top of the form, which takes
 focus. An alert on every field makes the screen reader read each error over
 the others. The summary, the grid, and the full error pattern are defined in
-the `form-rules` skill (§7, and `references/markup.md`), which wins wherever
+the `accessible-forms` skill (§7, and `references/markup.md`), which wins wherever
 this example is thinner.
 
 ## Color and Contrast

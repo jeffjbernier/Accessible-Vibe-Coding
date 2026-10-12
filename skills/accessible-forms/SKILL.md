@@ -1,23 +1,14 @@
-<!--
-  GENERATED FILE — DO NOT EDIT.
-  Source: skills/form-rules/SKILL.md
-  Regenerate: node tools/build-rules.mjs
-  Edits belong in the skill; this file is overwritten on every build.
--->
+---
+name: accessible-forms
+description: Use when creating or modifying any HTML form, form field, form partial, or form template, on the admin or public side of any app or site, or any page or partial that displays a single database record. Applies to hand-written and AI-generated code alike, even when the request never mentions layout, grid, tokens, validation, or accessibility.
+license: MIT
+metadata:
+  version: 2.0.0
+  source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
+---
 
 # Forms Standard
 
-> **When this applies.** Use when creating or modifying any HTML form, form
-> field, form partial, or form template, on the admin or public side of any
-> app or site, or any page or partial that displays a single database record.
-> Applies to hand-written and AI-generated code alike, even when the request
-> never mentions layout, grid, tokens, validation, or accessibility.
->
-> Always-apply ruleset, generated from the form-rules skill v1.3.1 in
-> accessible-vibe-coding. Licensed MIT.
->
-> Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
->
 > **What this is.** The single source of truth for how every form and
 > record-display page is built, on both the **admin** and **public** sides of a
 > project, with **WCAG 2.2 AA as a hard release gate**.
@@ -155,13 +146,13 @@ entirely:
 ## 4. Reference markup + CSS
 
 The canonical markup and CSS — the form grid, its mobile-first stylesheet, and
-the read-only record display — live in [references/markup.md][markup]. Read
-that file before writing or reviewing any form markup. Use it as a concrete
-starting point only. If the reference file differs from §2 or §3, follow §2
-and §3 and note the discrepancy in a code comment or TODO so the mismatch is
-explicit. If [references/markup.md][markup] is not present or cannot be read,
-proceed using §2 and §3 as the sole source of truth and note in a code
-comment that the reference file was unavailable.
+the read-only record display — live in `references/markup.md`. Read that file
+before writing or reviewing any form markup. Use it as a concrete starting
+point only. If the reference file differs from §2 or §3, follow §2 and §3 and
+note the discrepancy in a code comment or TODO so the mismatch is explicit. If
+`references/markup.md` is not present or cannot be read, proceed using §2 and §3
+as the sole source of truth and note in a code comment that the reference file
+was unavailable.
 
 ---
 
@@ -396,7 +387,7 @@ doesn't apply.
 - [ ] axe/Lighthouse clean in CI; keyboard-only walkthrough done; screen-reader
   pass (NVDA + one other) before release.
 
-**Checking the mechanical half.** The accessible-vibe-coding repo ships [form-check.js](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/scripts/form-check.js),
+**Checking the mechanical half.** This skill bundles `scripts/form-check.js`,
 which walks a rendered form and reports the boxes above that can be verified by
 machine:
 
@@ -413,7 +404,7 @@ paste, empty headings, pre-hidden summary or confirmation regions, and POST
 forms whose `action` lacks the `#error-summary` anchor — cites
 the section each finding violates, and exits non-zero when a gate fails, so it
 drops into CI unchanged. Run it alongside axe, never instead of it:
-the accessibility-rules ruleset's `axe-check.js` covers the rules this one
+the accessibility skill's `axe-check.js` covers the rules this one
 deliberately skips.
 
 It cannot judge whether focus order makes sense, whether an error message
@@ -472,7 +463,7 @@ main content form, and a footer newsletter signup all on the same page.
   "Volunteer registration"), reference that heading's `id`. This avoids
   duplicating text a sighted user already sees, and keeps the name in sync
   automatically if the heading copy changes. See the canonical example under
-  "Form grid" in [references/markup.md](https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md).
+  "Form grid" in `references/markup.md`.
 
 - **Use `aria-label` only when there's no visible heading to point to** — a
   compact/inline form such as a header search box or an inline newsletter
@@ -508,7 +499,7 @@ main content form, and a footer newsletter signup all on the same page.
 
 These are the specific mistakes a coding assistant tends to make even when it
 "knows" the rules above — each one can slip into otherwise-correct markup, so
-treat every line as its own gate. `form-check.js` (see §8) catches the
+treat every line as its own gate. `scripts/form-check.js` (see §8) catches the
 mechanically detectable ones; read them anyway, because it cannot catch the
 reasoning failures.
 
@@ -566,5 +557,3 @@ reasoning failures.
 ---
 
 *Update this file first, then the code.*
-
-[markup]: https://github.com/jeffjbernier/Accessible-Vibe-Coding/blob/HEAD/skills/form-rules/references/markup.md

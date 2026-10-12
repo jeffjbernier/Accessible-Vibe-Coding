@@ -2,7 +2,7 @@
 /**
  * axe-check.js — run axe-core against a URL or a local HTML file.
  *
- * Part of the accessibility-rules skill. Automated scanning catches roughly a
+ * Part of the accessibility skill. Automated scanning catches roughly a
  * third to a half of WCAG issues — the mechanical ones. A clean run here is the
  * floor, not the finish line: keyboard and screen reader passes still apply.
  *

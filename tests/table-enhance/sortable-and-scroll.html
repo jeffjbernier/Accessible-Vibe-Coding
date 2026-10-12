@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sortable and scrollable tables – table-enhance fixtures</title>
+  <style>
+    /* A fixed, narrow column so one table overflows and the other fits. */
+    .narrow-column { width: 16rem; }
+    .no-wrap td, .no-wrap th { white-space: nowrap; }
+  </style>
+  <script src="../../skills/accessible-tables/scripts/table-enhance.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Tables for the table-enhance script</h1>
+
+    <!-- Pattern X1 written by hand: buttons, icons and the hint are already
+         in the markup. The script must not add a second hint or icon. -->
+    <table id="team" data-sortable>
+      <caption>
+        Team members
+        <span class="table-sort-hint">(column headers with buttons are
+          sortable)</span>
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col" aria-sort="ascending">
+            <button type="button">
+              Name <span class="sort-icon" aria-hidden="true">▲</span>
+            </button>
+          </th>
+          <th scope="col">
+            <button type="button">
+              Start date <span class="sort-icon" aria-hidden="true">♢</span>
+            </button>
+          </th>
+          <th scope="col" data-sort="none">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Amara Nwosu</td><td>2024-03-11</td><td>Design lead</td></tr>
+        <tr><td>Rafael Duarte</td><td>2023-09-02</td><td>On leave</td></tr>
+        <tr><td>Yuki Tanaka</td><td>2025-01-20</td><td>Part time</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Plain markup: the script builds the buttons, icons and hint. -->
+    <table id="venues" data-sortable>
+      <caption>Venues</caption>
+      <thead>
+        <tr><th scope="col">Venue</th><th scope="col">Seats</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Main Hall</td><td>1,200</td></tr>
+        <tr><td>West Wing</td><td>85</td></tr>
+        <tr><td>Garden Stage</td><td>300</td></tr>
+      </tbody>
+    </table>
+
+    <div class="narrow-column">
+      <!-- Wider than its column: the scroll region must be focusable. -->
+      <table id="wide" class="no-wrap" data-scroll>
+        <caption>Quarterly sales by region</caption>
+        <thead>
+          <tr>
+            <th scope="col">Region</th>
+            <th scope="col">First quarter</th>
+            <th scope="col">Second quarter</th>
+            <th scope="col">Third quarter</th>
+            <th scope="col">Fourth quarter</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Northern Europe</th>
+            <td>1,204,000</td><td>1,310,500</td><td>1,198,250</td><td>1,422,900</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Fits its column: no tab stop. -->
+      <table id="fits" data-scroll>
+        <caption>Seats</caption>
+        <thead>
+          <tr><th scope="col">Hall</th><th scope="col">Seats</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Main</th><td>85</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

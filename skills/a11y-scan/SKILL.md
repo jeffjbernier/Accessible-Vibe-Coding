@@ -25,14 +25,14 @@ every template, component, and HTML file in the project.
    the report:
 
    ```bash
-   node ~/.claude/skills/accessibility-rules/scripts/axe-check.js <target>
-   node ~/.claude/skills/form-rules/scripts/form-check.js <target>
+   node ~/.claude/skills/accessibility/scripts/axe-check.js <target>
+   node ~/.claude/skills/accessible-forms/scripts/form-check.js <target>
    ```
 
    `axe-check.js` runs axe-core. `form-check.js` catches what axe passes on
    forms: placeholder-only labels, fake buttons, unnamed forms, dangling
    `aria-describedby`, positive `tabindex`, missing `autocomplete`. Run it
-   when the page has a form or form controls. It cites `form-rules` sections
+   when the page has a form or form controls. It cites `accessible-forms` sections
    rather than WCAG criteria, so add the matching success criterion to each
    of its findings as you fold it in.
 
@@ -48,11 +48,11 @@ every template, component, and HTML file in the project.
      meaning carried by color alone.
    - **Operable.** Click handlers on `<div>` or `<span>`; missing or removed
      focus indicators; no skip link; positive `tabindex`; modals that miss
-     any item of the modal contract in the `accessibility-rules` skill
+     any item of the modal contract in the `accessibility` skill
      ("Modals and dialogs"); pointer targets under 24×24 CSS pixels
      (2.5.8, AA; inline links in running text are exempt); outside a form,
      also targets under 44×44 (2.5.5, AAA, this ruleset's default). Inside a
-     form the `form-rules` 24×24 gate is the only one that applies.
+     form the `accessible-forms` 24×24 gate is the only one that applies.
    - **Understandable.** Inputs without a visible associated `<label>`;
      placeholder used as the only label; error messages not tied to their
      field with `aria-describedby`; no `lang` on `<html>`; navigation that

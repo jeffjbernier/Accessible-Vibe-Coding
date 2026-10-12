@@ -1,9 +1,9 @@
 ---
-name: accessibility-rules
+name: accessibility
 description: Use when creating or modifying anything a person will see, hear, or operate - a UI, web page, component, prototype, email, or dashboard - or when producing any HTML, CSS, JS, React, or template output, even a small snippet and even when the request never mentions accessibility. Also use when a task mentions WCAG, ARIA, contrast, keyboard navigation, focus, screen readers, or touch targets.
 license: MIT
 metadata:
-  version: 1.5.0
+  version: 2.0.0
   source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 
@@ -25,10 +25,10 @@ change them silently — instead append a comment block listing the violations
 found and the recommended fixes, so the developer can address them
 deliberately.
 
-**Relationship to the form-rules skill.** For form layout, grid, tokens, and the
-error pattern, the `form-rules` skill is the source of truth. Where the two
-overlap, form-rules wins. Touch-target sizing is defined once in "Touch and
-pointer" and applies across this file.
+**Relationship to the accessible-forms skill.** For form layout, grid, tokens,
+and the error pattern, the `accessible-forms` skill is the source of truth.
+Where the two overlap, accessible-forms wins. Touch-target sizing is defined
+once in "Touch and pointer" and applies across this file.
 
 ## Accessibility Guidelines
 
@@ -151,7 +151,7 @@ focus, responds to Escape, and returns focus on close.
   plus a description, NVDA reads it twice in browse mode; with the line
   hidden, arrow keys never read it, because a description is only
   announced on focus (NVDA + Chrome, 1 Oct 2026). Form field hints are
-  out of scope: they follow the `form-rules` field anatomy.
+  out of scope: they follow the `accessible-forms` field anatomy.
 - For complex widgets, follow WAI-ARIA Authoring Practices patterns exactly —
   don't improvise ARIA role combinations.
 - If a custom widget pattern is needed, inline the critical pattern directly in
@@ -209,7 +209,7 @@ focus, responds to Escape, and returns focus on close.
   "Review and confirm your order" → "Review". If labels still do not fit,
   simplify the flow or group steps rather than shrinking text below 16px.
 - Each step link follows the touch-target minimum defined in "Touch and
-  pointer." The `form-rules` 24×24px gate applies only to form controls, not
+  pointer." The `accessible-forms` 24×24px gate applies only to form controls, not
   step indicators.
 
 ## Forms
@@ -318,7 +318,7 @@ focus, responds to Escape, and returns focus on close.
 ## Touch and pointer
 
 - Minimum touch target: 44×44 CSS pixels with 8px spacing between adjacent
-  targets. Exception: when `form-rules` is active, its 24×24px minimum pointer
+  targets. Exception: when `accessible-forms` is active, its 24×24px minimum pointer
   target gate governs form controls only.
 - No functionality depends solely on swipe, pinch, or drag. Provide visible
   button alternatives.
