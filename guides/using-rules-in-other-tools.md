@@ -1,15 +1,16 @@
 # Using These Rules in Cursor, Windsurf, and Copilot
 
-Claude Code loads the two rulesets in this repo as [Agent
+Claude Code loads the three rulesets in this repo as [Agent
 Skills](https://code.claude.com/docs/en/skills) — a folder with a `SKILL.md` in
 it, discovered automatically, invoked by description. No other assistant works
 that way. Cursor, Windsurf, and GitHub Copilot each read a *rules file*: plain
 markdown, a different path per tool, a different frontmatter dialect on top, and
 different conditions under which it gets injected into the prompt at all.
 
-That's what `rules/accessibility.md` and `rules/accessible-forms.md` are for.
-Same content as the skills, frontmatter stripped, repo-relative paths rewritten
-to absolute URLs so they still resolve once copied out.
+That's what `rules/accessibility.md`, `rules/accessible-forms.md`, and
+`rules/accessible-tables.md` are for. Same content as the skills, frontmatter
+stripped, repo-relative paths rewritten to absolute URLs so they still resolve
+once copied out.
 
 [INSTALL.md](../INSTALL.md) has the short version — copy this file here, add
 that frontmatter. This guide is the long version: what each tool actually does
@@ -39,8 +40,8 @@ scanning, keyboard testing, screen reader testing, and testing with disabled
 users all still apply, unchanged.
 
 **Size caps are real and mostly silent.** Windsurf caps a workspace rule file at
-12,000 characters. Both files in `rules/` exceed that today. Nothing warns you —
-see [Windsurf](#3-windsurf-devin-desktop) below.
+12,000 characters. All three files in `rules/` exceed that today. Nothing warns
+you — see [Windsurf](#3-windsurf-devin-desktop) below.
 
 **Trigger conditions are where these actually fail.** Nearly every "the rules
 aren't working" report across all three tools comes down to the file loading
@@ -49,7 +50,7 @@ verify it, with the canary test in [Section 6](#6-verifying-it-actually-fired).
 
 ---
 
-## 1. The two files, and their size
+## 1. The three files, and their size
 
 Sizes matter here in a way they don't in Claude Code, so start with the numbers.
 These drift whenever the skills change; re-check after a `git pull` with `wc -c
@@ -58,18 +59,19 @@ files slightly — it errs toward the safe side of a character cap.
 
 | File | Characters | Lines |
 | --- | --- | --- |
-| `rules/accessibility.md` | ~18,200 | 386 |
-| `rules/accessible-forms.md` | ~21,100 | 442 |
+| `rules/accessibility.md` | ~23,100 | 467 |
+| `rules/accessible-forms.md` | ~28,700 | 570 |
+| `rules/accessible-tables.md` | ~18,950 | 365 |
 
 Against each platform's published limit or guidance:
 
 <!-- markdownlint-disable MD013 -->
 | Platform | Published limit or guidance | Fits as-is? |
 | --- | --- | --- |
-| Cursor | "Keep rules under 500 lines" — guidance, not enforced | Yes, both |
-| Windsurf | 12,000 characters per workspace rule file — a hard cap | **No. Split both.** |
+| Cursor | "Keep rules under 500 lines" — guidance, not enforced | Yes. `accessible-forms.md` is over the guidance at 570 lines and still loads |
+| Windsurf | 12,000 characters per workspace rule file — a hard cap | **No. Split all three.** |
 | Copilot | Repo-wide instructions "no longer than 2 pages" — guidance, no published cap | Over guidance; works, see [Section 4](#4-github-copilot) |
-| AGENTS.md | No limit in the convention | Yes, both |
+| AGENTS.md | No limit in the convention | Yes, all three |
 <!-- markdownlint-enable MD013 -->
 
 ---
@@ -86,6 +88,7 @@ the rules pane. Renaming on copy is not cosmetic:
 mkdir -p .cursor/rules
 cp Accessible-Vibe-Coding/rules/accessibility.md .cursor/rules/accessibility.mdc
 cp Accessible-Vibe-Coding/rules/accessible-forms.md .cursor/rules/accessible-forms.mdc
+cp Accessible-Vibe-Coding/rules/accessible-tables.md .cursor/rules/accessible-tables.mdc
 ```
 
 For rules that follow you across every project instead, use **Customize →
@@ -144,8 +147,10 @@ mode the skill was written to prevent.
 
 ### Length
 
-Cursor's documented guidance is 500 lines per rule. Both files clear it. If you
-fork and grow one past that, split it by section rather than letting one file
+Cursor's documented guidance is 500 lines per rule. `accessibility.md`
+and `accessible-tables.md` clear it. `accessible-forms.md` is over it at 570 lines;
+the guidance is not enforced, and the file still loads whole. If you would
+rather stay under it, split that file by section rather than letting one file
 sprawl — `.cursor/rules/` supports subfolders, and rules are identified by full
 path, so same-named files in different folders don't collide.
 
@@ -193,37 +198,52 @@ The four values are `always_on`, `glob` (which also needs a `globs:` line),
 `manual` (activated by typing `@rule-name`). Use `always_on` for accessibility,
 for the same reason as Cursor.
 
-### The 12,000-character cap — both files need splitting
+### The 12,000-character cap — every file needs splitting
 
 This is the one real obstacle in this guide. Windsurf caps each workspace rule
-file at 12,000 characters. `accessibility.md` is ~18,200 and
-`accessible-forms.md` is ~21,100. Over the cap, the tail is not honored, and nothing
-tells you which half the model got.
+file at 12,000 characters. `accessibility.md` is ~23,100,
+`accessible-forms.md` is ~28,700, and `accessible-tables.md` is ~18,950. Over the
+cap, the tail is not honored, and nothing tells you which part the model got.
 
-Split each at a section boundary, repeating the header block so part two still
-carries its own "when this applies" framing:
+Split each at section boundaries, repeating the header block so every later
+part still carries its own "when this applies" framing:
 
 ```bash
 mkdir -p .devin/rules
 R=Accessible-Vibe-Coding/rules
 
-split_rules() {  # <rules file name> <heading that starts part two>
-  src=$R/$1.md
-  at=$(grep -n -m1 "^## $2" "$src" | cut -d: -f1)
+split_rules() {  # <rules file> <heading level> <heading starting part 2> ...
+  name=$1; level=$2; src=$R/$name.md; shift 2
   head_end=$(( $(grep -n -m1 '^## ' "$src" | cut -d: -f1) - 1 ))
-  sed -n "1,$((at - 1))p" "$src" > .devin/rules/$1-1.md
-  { sed -n "1,${head_end}p" "$src"; sed -n "${at},\$p" "$src"; } > .devin/rules/$1-2.md
+  start=1; part=1
+  for heading in "$@" ''; do
+    out=.devin/rules/$name-$part.md
+    if [ "$part" -gt 1 ]; then sed -n "1,${head_end}p" "$src"; fi > "$out"
+    if [ -z "$heading" ]; then sed -n "${start},\$p" "$src" >> "$out"; break; fi
+    at=$(grep -n -m1 "^$level $heading" "$src" | cut -d: -f1)
+    sed -n "${start},$((at - 1))p" "$src" >> "$out"
+    start=$at; part=$((part + 1))
+  done
 }
 
-split_rules accessibility 'Media and captions'
-split_rules accessible-forms '8\. '
+split_rules accessibility '##' 'Step indicators' 'Touch and pointer'
+split_rules accessible-forms '##' '6\. ' '8\. ' '10\. '
+split_rules accessible-tables '###' '6\. '
 ```
 
-That splits the accessibility rules before "Media and captions" and the forms
-rules before section 8 — four files between roughly 9,500 and 11,500 characters
-with frontmatter on, each under the cap.
+Each call names the file, the heading level to split at, and the heading that
+starts each later part:
 
-Add `trigger: always_on` frontmatter to all four, then confirm nothing crept
+- The accessibility rules split in three, before "Step indicators" and before
+  "Touch and pointer".
+- The forms rules split in four, before sections 6, 8, and 10.
+- The tables rules split in two, before step 6 of the Workflow. That step is a
+  `###` heading; a split at any `##` heading leaves part one over the cap.
+
+That makes nine files between roughly 6,500 and 11,800 characters with
+frontmatter on, each under the cap.
+
+Add `trigger: always_on` frontmatter to every part, then confirm nothing crept
 over:
 
 ```bash
@@ -231,11 +251,12 @@ wc -c .devin/rules/*.md
 ```
 
 **The split finds each heading by name, so it survives lines moving. It does not
-survive growth.** Each half of the forms rules sits about 500 bytes under the
-cap by `wc -c`. Re-run it after every `git pull`. If a part is over 12,000, move
-that split to an earlier `##` heading or cut a third part. If a heading has been
-renamed, `sed` prints an error and leaves an empty part one and a header-only
-part two.
+survive growth.** Part two of the tables rules sits about 230 bytes under the
+cap by `wc -c`; every other part has at least 1,600 to spare. Re-run it after
+every `git pull`. If a part is over 12,000, move that split to an earlier
+heading, or add another heading to the call to cut one more part. If a heading
+has been renamed, `sed` prints an error and the parts for that file come out
+incomplete.
 
 ---
 
@@ -259,22 +280,25 @@ No frontmatter; Copilot takes plain markdown here. The setting that governs it,
 `github.copilot.chat.codeGeneration.useInstructionFiles`, defaults to on, so
 there's nothing to enable unless someone turned it off.
 
-GitHub's guidance is that this file should be "no longer than 2 pages." Both
-rulesets blow past that, and there's no published hard cap to hit. In practice a
-long repo-wide instruction file works; the cost is dilution, since every
+GitHub's guidance is that this file should be "no longer than 2 pages." All
+three rulesets blow past that, and there's no published hard cap to hit. In
+practice a long repo-wide instruction file works; the cost is dilution, since every
 instruction competes for the model's attention on every request. If you're
-appending both rulesets plus your own house style, put `accessibility`
-here and scope `accessible-forms` by path instead.
+appending all three rulesets plus your own house style, put `accessibility`
+here and scope `accessible-forms` and `accessible-tables` by path instead.
 
 ### Path-scoped: `.github/instructions/*.instructions.md`
 
 Supported in VS Code, Visual Studio, JetBrains, Xcode, the coding agent, and
-code review — but **not** in github.com chat. Good fit for `accessible-forms`:
+code review — but **not** in github.com chat. Good fit for `accessible-forms`
+and `accessible-tables`:
 
 ```bash
 mkdir -p .github/instructions
 cp Accessible-Vibe-Coding/rules/accessible-forms.md \
    .github/instructions/accessible-forms.instructions.md
+cp Accessible-Vibe-Coding/rules/accessible-tables.md \
+   .github/instructions/accessible-tables.instructions.md
 ```
 
 Then add the `applyTo` glob at the top. Multiple patterns go comma-separated
@@ -324,6 +348,7 @@ file in this guide:
 ```bash
 cat Accessible-Vibe-Coding/rules/accessibility.md >> AGENTS.md
 cat Accessible-Vibe-Coding/rules/accessible-forms.md >> AGENTS.md
+cat Accessible-Vibe-Coding/rules/accessible-tables.md >> AGENTS.md
 ```
 
 Agents read the nearest `AGENTS.md` up the directory tree, so a package-level
@@ -424,8 +449,8 @@ intact.
 - `.cursorrules` loses to `.cursor/rules/*.mdc` when both exist, which reads as
   the legacy file being broken.
 - Windsurf's cap is 12,000 characters per workspace rule file and 6,000 for
-  global rules. Both files in `rules/` are over the workspace cap and must be
-  split.
+  global rules. All three files in `rules/` are over the workspace cap and must
+  be split.
 - Windsurf's paths moved to `.devin/rules/`. `.windsurf/rules/` and
   `.windsurfrules` still work as fallbacks, and `docs.windsurf.com` now
   redirects to `docs.devin.ai`.

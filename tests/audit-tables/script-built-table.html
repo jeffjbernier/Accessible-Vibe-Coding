@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Script-built table – audit-tables fixtures</title>
+</head>
+<body>
+  <main>
+    <h1>A table that only exists after the page's script runs</h1>
+    <div id="team"></div>
+  </main>
+
+  <!-- The static HTML has no table. The auditor must load the page in a
+       browser to see this one, which has no header cells at all. -->
+  <script>
+    const members = [
+      ['Imani Okafor', 'Design', '2024-03-11'],
+      ['Rafael Duarte', 'Engineering', '2023-09-02'],
+    ];
+    const table = document.createElement('table');
+    const caption = table.createCaption();
+    caption.textContent = 'Team members';
+    for (const member of members) {
+      const row = table.insertRow();
+      for (const value of member) row.insertCell().textContent = value;
+    }
+    document.getElementById('team').appendChild(table);
+  </script>
+</body>
+</html>

@@ -32,18 +32,20 @@ You do not need to be an accessibility expert to use this. That's the point.
 
 ## What's in here
 
-Three skills, in `skills/`:
+Four skills, in `skills/`:
 
 <!-- markdownlint-disable MD013 -->
 | Skill | What it does |
 | --- | --- |
 | `accessibility` | Constrains any UI, page, component, or markup the assistant generates — contrast, semantics, keyboard and focus, ARIA, motion, media, cognitive load |
 | `accessible-forms` | Constrains forms, form fields, and single-record display pages — grid, tokens, field anatomy, validation, and the error pattern |
+| `accessible-tables` | Constrains data tables — header cells, `scope`, `id`/`headers`, captions, layout tables, responsive and sortable tables. Ships a table auditor and an optional enhancement script |
 | `nvda-scan` | Drives a live NVDA session over the page open in Chrome and reports what a screen-reader user actually hears for every heading and form control. Windows only; needs the setup in the NVDA guide below |
 <!-- markdownlint-enable MD013 -->
 
 The first two overlap on purpose. Where they disagree about a form, `accessible-forms`
-wins.
+wins. `accessible-tables` is the detail behind the data-table rule in
+`accessibility`; on a table, it wins.
 
 Three slash commands, also in `skills/`. These only run when you type them:
 
@@ -55,13 +57,14 @@ Three slash commands, also in `skills/`. These only run when you type them:
 | `/a11y-report [path]` | Writes the findings up as a report grouped by WCAG principle with severity, who is affected, and corrected code. No compliance score, on purpose |
 <!-- markdownlint-enable MD013 -->
 
-Plus the two rulesets as standalone files, in `rules/`:
+Plus the three rulesets as standalone files, in `rules/`:
 
 <!-- markdownlint-disable MD013 -->
 | File | For |
 | --- | --- |
 | `rules/accessibility.md` | Cursor, Windsurf, Copilot, and anything else that reads a rules file rather than an Agent Skill |
 | `rules/accessible-forms.md` | The same, for forms |
+| `rules/accessible-tables.md` | The same, for data tables |
 <!-- markdownlint-enable MD013 -->
 
 These are generated from the skills by `tools/build-rules.mjs` — same rules, no
@@ -85,7 +88,7 @@ And two agent definitions, in `agents/`:
 <!-- markdownlint-disable MD013 -->
 | Agent | What it does |
 | --- | --- |
-| `accessibility-specialist` | Hands-on: builds or fixes a component to WCAG 2.2 AA, wires up ARIA on custom widgets, clears an axe-core report. Can edit files. Needs both rules skills installed |
+| `accessibility-specialist` | Hands-on: builds or fixes a component to WCAG 2.2 AA, wires up ARIA on custom widgets, clears an axe-core report. Can edit files. Needs the `accessibility` and `accessible-forms` skills installed |
 | `ux-design-agent` | Read-only reviewer. Reads HTML, JSX, and CSS and reports accessibility, hierarchy, typography, color, spacing, and responsiveness problems with a file, line, and fix for each. Never edits. Needs the `accessibility` skill for its accessibility category |
 <!-- markdownlint-enable MD013 -->
 
@@ -105,9 +108,10 @@ git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 mkdir -p ~/.claude/skills
 cp -r Accessible-Vibe-Coding/skills/accessibility ~/.claude/skills/
 cp -r Accessible-Vibe-Coding/skills/accessible-forms ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessible-tables ~/.claude/skills/
 ```
 
-Run `/skills` in Claude Code to confirm both loaded. For project-scoped
+Run `/skills` in Claude Code to confirm all three loaded. For project-scoped
 installs, Windows paths, Claude Desktop and claude.ai uploads, and the Agent
 SDK, see [INSTALL.md](INSTALL.md).
 

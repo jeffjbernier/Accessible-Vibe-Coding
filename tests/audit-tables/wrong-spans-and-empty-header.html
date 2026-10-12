@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wrong spans and an empty header – audit-tables fixtures</title>
+</head>
+<body>
+  <main>
+    <h1>Spanned headers with the wrong scope, and an empty header</h1>
+
+    <table>
+      <caption>Production and sales by planet</caption>
+      <thead>
+        <tr>
+          <th scope="col">Product</th>
+          <th colspan="2" scope="col">Mars</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th rowspan="2" scope="row">Teddy bears</th>
+          <td>50,000</td><td>30,000</td>
+        </tr>
+        <tr><td>52,000</td><td>31,000</td></tr>
+        <tr><th scope="row"></th><td>10,000</td><td>5,000</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

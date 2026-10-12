@@ -4,6 +4,7 @@ description: Runs an NVDA screen-reader scan of the currently-focused web page â
 license: MIT
 metadata:
   version: 2.0.0
+  rules-file: false
   source: https://github.com/jeffjbernier/Accessible-Vibe-Coding
 ---
 

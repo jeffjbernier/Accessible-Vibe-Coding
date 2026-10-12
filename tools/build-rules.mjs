@@ -9,34 +9,59 @@
  *   node tools/build-rules.mjs           write rules/
  *   node tools/build-rules.mjs --check   verify rules/ matches skills/ (CI)
  *
+ *   --skills <dir>   read skills from here instead of ./skills
+ *   --rules <dir>    write or check rules here instead of ./rules
+ *
  * No dependencies. Node 18+.
  *
- * Every rewrite below is matched literally and MUST be found. If you edit a
- * skill and a rewrite stops matching, this script fails loudly rather than
- * shipping a rules file with a path that points nowhere.
+ * Any folder under skills/ with a SKILL.md is built; nothing in this file
+ * has to name it. A skill is skipped when its frontmatter says it is a slash
+ * command (`disable-model-invocation: true`) or opts out with
+ * `rules-file: false` under `metadata`.
+ *
+ * Paths a skill gives to its own `scripts/` and `references/` files are
+ * turned into links automatically. The per-skill rewrites below are only for
+ * wording. Each is matched literally and MUST be found: if you edit a skill
+ * and a rewrite stops matching, this script fails loudly rather than
+ * shipping a rules file that quietly kept the old wording.
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..');
-const SKILLS_DIR = join(REPO, 'skills');
-const RULES_DIR = join(REPO, 'rules');
+const args = process.argv.slice(2);
+
+/** The directory given after a flag, or the fallback when the flag is absent. */
+function dirOption(flag, fallback) {
+  const at = args.indexOf(flag);
+  if (at === -1) return fallback;
+  const value = args[at + 1];
+  if (!value || value.startsWith('--')) {
+    console.error(`${flag} needs a directory.`);
+    process.exit(1);
+  }
+  return resolve(value);
+}
+
+const SKILLS_DIR = dirOption('--skills', join(REPO, 'skills'));
+const RULES_DIR = dirOption('--rules', join(REPO, 'rules'));
 
 // GitHub resolves /blob/HEAD/ to whatever the repo's default branch is called,
 // so links in the generated files survive a branch rename and this script does
 // not have to know or guess the branch name.
 const REF = 'HEAD';
 
-const check = process.argv.includes('--check');
+const check = args.includes('--check');
 
 /* ------------------------------------------------------------------ *
- * Per-skill rewrites.
+ * Per-skill rewrites — optional.
  *
- * A rules file is read on its own, detached from this repo, so every
- * repo-relative path has to become an absolute URL and every mention of
- * "this skill" has to stop claiming to be a skill.
+ * A rules file is read on its own, detached from this repo, so a mention of
+ * "this skill" should stop claiming to be a skill. That wording is specific
+ * to each skill, so it lives here. A skill with no entry builds unchanged;
+ * its own scripts/ and references/ paths are linked by linkLocalPaths().
  * ------------------------------------------------------------------ */
 
 const rewrites = {
@@ -78,6 +103,17 @@ const rewrites = {
     [
       'treat every line as its own gate. `scripts/form-check.js` (see §8) catches the',
       'treat every line as its own gate. `form-check.js` (see §8) catches the',
+    ],
+  ],
+  'accessible-tables': () => [
+    [
+      '**Relationship to the accessibility skill.** That skill sets the',
+      '**Relationship to the accessibility ruleset.** That file sets the',
+    ],
+    ['Files in this skill:', 'Files in the accessible-vibe-coding repo:'],
+    [
+      '  accessibility skill requires; the CSS starter in the patterns file',
+      '  accessibility ruleset requires; the CSS starter in the patterns file',
     ],
   ],
 };
@@ -150,9 +186,63 @@ function quote(text, width = 76) {
   return lines.map((l) => `> ${l}`).join('\n');
 }
 
-function build(name) {
+const LOCAL_PATH = /`((?:scripts|references)\/[^`\s]+)`/g;
+
+/**
+ * Turn a skill's own `scripts/…` and `references/…` paths into links.
+ *
+ * Each becomes a shortcut reference link, `[scripts/x.js]`, which is exactly
+ * as long as the backticked path it replaces, so no line grows past the
+ * 80-column limit. The matching definitions are returned for the end of the
+ * file. Fenced code blocks are left alone.
+ */
+function linkLocalPaths(body, name, blob) {
+  const definitions = new Map();
+  const missing = new Set();
+  let inFence = false;
+
+  const lines = body.split('\n').map((line) => {
+    if (/^\s*(```|~~~)/.test(line)) {
+      inFence = !inFence;
+      return line;
+    }
+    if (inFence) return line;
+    return line.replace(LOCAL_PATH, (match, path, offset) => {
+      if (!existsSync(join(SKILLS_DIR, name, path.split('#')[0]))) {
+        missing.add(path);
+        return match;
+      }
+      definitions.set(path, `${blob}/skills/${name}/${path}`);
+      // "[x](" or "[x][" would read as a different kind of link.
+      const next = line[offset + match.length];
+      return next === '(' || next === '[' ? `[${path}][]` : `[${path}]`;
+    });
+  });
+
+  if (missing.size) {
+    throw new Error(
+      `skills/${name}/SKILL.md points at files the skill does not have: ` +
+        `${[...missing].join(', ')}\n` +
+        `  A rules file is copied out of this repo, so each path must be a real\n` +
+        `  file under skills/${name}/ that it can link to. Fix the path, add the\n` +
+        `  file, or reword the sentence if it means a file in the reader's project.`
+    );
+  }
+  return { body: lines.join('\n'), definitions };
+}
+
+/** True when the skill is a procedure, not a ruleset, and gets no rules file. */
+function skipsRulesFile(meta) {
+  return meta['disable-model-invocation'] === 'true' || meta['metadata.rules-file'] === 'false';
+}
+
+function readSkill(name) {
   const file = join(SKILLS_DIR, name, 'SKILL.md');
-  const { meta, body: raw } = parseFrontmatter(readFileSync(file, 'utf8'), `skills/${name}/SKILL.md`);
+  return parseFrontmatter(readFileSync(file, 'utf8'), `skills/${name}/SKILL.md`);
+}
+
+function build(name) {
+  const { meta, body: raw } = readSkill(name);
 
   const source = meta['metadata.source'] || 'https://github.com/jeffjbernier/Accessible-Vibe-Coding';
   const blob = `${source.replace(/\/+$/, '')}/blob/${REF}`;
@@ -170,6 +260,9 @@ function build(name) {
     }
     body = body.replace(from, to);
   }
+
+  const linked = linkLocalPaths(body, name, blob);
+  body = linked.body;
 
   // The skill's `description` is what makes it fire. A rules file has no
   // frontmatter to carry it, so it becomes a visible trigger block instead.
@@ -205,39 +298,34 @@ function build(name) {
     '',
   ].join('\n');
 
-  const defs = Object.entries(links[name]?.(blob) ?? {})
+  const defs = [...Object.entries(links[name]?.(blob) ?? {}), ...linked.definitions]
     .map(([label, url]) => `[${label}]: ${url}`)
     .join('\n');
-  const out = `${banner}${body.replace(/\s*$/, '')}\n${defs ? `\n${defs}\n` : ''}`;
-
-  // A rules file that still carries a repo-relative path is broken the moment
-  // someone copies it out of this repo.
-  const dangling = out.match(/`(?:scripts|references)\/[^`]+`/g);
-  if (dangling) {
-    throw new Error(
-      `rules/${name}.md would ship repo-relative paths: ${dangling.join(', ')}\n` +
-        `  Add a rewrite in tools/build-rules.mjs turning each into an absolute URL.`
-    );
-  }
-
-  return out;
+  return `${banner}${body.replace(/\s*$/, '')}\n${defs ? `\n${defs}\n` : ''}`;
 }
 
 // Skills that are procedures rather than rulesets — slash commands a person
 // types, or a skill that drives a live tool such as NVDA — have no meaning as
-// an always-apply rules file for Cursor or Copilot. They ship as skills only.
-const NO_RULES_FILE = new Set(['a11y-report', 'a11y-scan', 'aria-fix', 'nvda-scan']);
-
+// an always-apply rules file for Cursor or Copilot. They ship as skills only,
+// and say so in their own frontmatter (see skipsRulesFile).
 const names = readdirSync(SKILLS_DIR, { withFileTypes: true })
   .filter((e) => e.isDirectory() && existsSync(join(SKILLS_DIR, e.name, 'SKILL.md')))
   .map((e) => e.name)
-  .filter((name) => !NO_RULES_FILE.has(name))
+  .filter((name) => !skipsRulesFile(readSkill(name).meta))
   .sort();
 
 if (!names.length) {
-  console.error('No skills found under skills/.');
+  console.error(`No skills that take a rules file found under ${SKILLS_DIR}.`);
   process.exit(1);
 }
+
+// A rules file whose skill was renamed, removed, or opted out keeps shipping
+// stale rules unless something notices it.
+const orphans = existsSync(RULES_DIR)
+  ? readdirSync(RULES_DIR)
+      .filter((entry) => entry.endsWith('.md') && !names.includes(entry.slice(0, -3)))
+      .sort()
+  : [];
 
 if (!check) mkdirSync(RULES_DIR, { recursive: true });
 
@@ -260,10 +348,19 @@ for (const name of names) {
   }
 }
 
+for (const orphan of orphans) {
+  if (check) stale++;
+  console.error(
+    `${check ? 'no source skill' : 'warning: no source skill'}: rules/${orphan}` +
+      (check ? '' : ' — delete it if its skill is gone')
+  );
+}
+
 if (check && stale) {
   console.error(
     `\n${stale} rules file(s) do not match skills/.\n` +
-      `Run "node tools/build-rules.mjs" and commit the result.`
+      `Run "node tools/build-rules.mjs" and commit the result. Delete any rules\n` +
+      `file listed as having no source skill.`
   );
   process.exit(1);
 }

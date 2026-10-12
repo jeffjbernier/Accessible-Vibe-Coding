@@ -144,3 +144,6 @@ tmp/
 temp/
 *.bak
 *.orig
+
+# Claude Code progress dashboard (local only)
+.dashboard/

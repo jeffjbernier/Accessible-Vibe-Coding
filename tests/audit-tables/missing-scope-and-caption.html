@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Missing scope and caption – audit-tables fixtures</title>
+</head>
+<body>
+  <main>
+    <h1>A table with headers but no scope and no caption</h1>
+
+    <table id="concerts">
+      <tr><th>Date</th><th>Event</th><th>Venue</th></tr>
+      <tr><td>12 February</td><td>Waltz with Strauss</td><td>Main Hall</td></tr>
+      <tr><td>24 March</td><td>The Obelisks</td><td>West Wing</td></tr>
+    </table>
+
+    <!-- Named with ARIA and scoped: the missing caption is only a warning. -->
+    <table id="venues" aria-label="Venues">
+      <tr><th scope="col">Venue</th><th scope="col">Seats</th></tr>
+      <tr><td>Main Hall</td><td>1,200</td></tr>
+    </table>
+  </main>
+</body>
+</html>

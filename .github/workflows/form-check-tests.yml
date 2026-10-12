@@ -1,9 +1,10 @@
-name: form-check tests
+name: checker tests
 
-# form-check.js is the machine half of the accessible-forms §8 gate. A change to the
-# checker that stops it failing a page it should fail — or starts failing a
-# page it should pass — ships silently unless something runs it. This job runs
-# the fixtures in tests/form-check/ against it.
+# form-check.js is the machine half of the accessible-forms §8 gate, and the
+# accessible-tables scripts are the machine half of that skill's checklist. A
+# change to a checker that stops it failing a page it should fail — or starts
+# failing a page it should pass — ships silently unless something runs it.
+# This job runs every test in tests/ against the fixtures beside them.
 
 on:
   push:
@@ -11,6 +12,8 @@ on:
   pull_request:
     paths:
       - 'skills/accessible-forms/**'
+      - 'skills/accessible-tables/**'
+      - 'tools/build-rules.mjs'
       - 'tests/**'
       - '.github/workflows/form-check-tests.yml'
 
@@ -35,5 +38,5 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.63.0
           npx playwright install --with-deps chromium
 
-      - name: Run form-check tests
+      - name: Run checker tests
         run: node --test "tests/*.test.mjs"

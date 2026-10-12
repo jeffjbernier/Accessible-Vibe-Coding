@@ -4,13 +4,14 @@ These are plain [Agent Skills](https://code.claude.com/docs/en/skills) — a
 folder with a `SKILL.md` inside it. There is no plugin, no marketplace, and
 nothing to build. You copy a folder into place and Claude picks it up.
 
-Three skills ship here:
+Four skills ship here:
 
 <!-- markdownlint-disable MD013 -->
 | Skill | What it does |
 | --- | --- |
 | `accessibility` | Constrains any UI, page, component, or markup the assistant generates |
 | `accessible-forms` | Constrains forms, form fields, and single-record display pages |
+| `accessible-tables` | Constrains data tables: headers, `scope`, captions, responsive and sortable tables |
 | `nvda-scan` | Drives a live NVDA screen-reader session over a page in Chrome. Windows only, and it needs the nvda-mcp server from [guides/automate-nvda-testing.md](guides/automate-nvda-testing.md) before it can connect |
 <!-- markdownlint-enable MD013 -->
 
@@ -32,7 +33,7 @@ Copy them exactly like the other skills. Two agent definitions ship alongside
 everything; see [Agents](#agents) below.
 
 Cursor, Windsurf, and Copilot don't load Agent Skills. For those, the repo ships
-the two rulesets as standalone files in `rules/` — see [Cursor, Windsurf, and
+the three rulesets as standalone files in `rules/` — see [Cursor, Windsurf, and
 Copilot](#cursor-windsurf-and-copilot) below. `nvda-scan` has no rules-file
 form; it only runs inside Claude Code.
 
@@ -65,6 +66,7 @@ git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 mkdir -p ~/.claude/skills
 cp -r Accessible-Vibe-Coding/skills/accessibility ~/.claude/skills/
 cp -r Accessible-Vibe-Coding/skills/accessible-forms ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessible-tables ~/.claude/skills/
 ```
 
 For a single project instead, swap the destination:
@@ -73,6 +75,7 @@ For a single project instead, swap the destination:
 mkdir -p .claude/skills
 cp -r Accessible-Vibe-Coding/skills/accessibility .claude/skills/
 cp -r Accessible-Vibe-Coding/skills/accessible-forms .claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessible-tables .claude/skills/
 ```
 
 `nvda-scan` is Windows-only, so it is left out of these two blocks. The
@@ -92,6 +95,7 @@ git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"
 Copy-Item -Recurse Accessible-Vibe-Coding\skills\accessibility "$env:USERPROFILE\.claude\skills\"
 Copy-Item -Recurse Accessible-Vibe-Coding\skills\accessible-forms "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse Accessible-Vibe-Coding\skills\accessible-tables "$env:USERPROFILE\.claude\skills\"
 Copy-Item -Recurse Accessible-Vibe-Coding\skills\nvda-scan "$env:USERPROFILE\.claude\skills\"
 ```
 
@@ -151,8 +155,8 @@ Then add one line to `~/.claude/CLAUDE.md`:
 
 The `@` import resolves relative to the `CLAUDE.md` that contains it, so the
 same line works in a project `CLAUDE.md` with the file at
-`<repo>/rules/accessibility.md`. The cost is real: the file is about 18
-KB, roughly 4,300 tokens on every turn. If that matters, skip this step and rely
+`<repo>/rules/accessibility.md`. The cost is real: the file is about 23
+KB, roughly 5,500 tokens on every turn. If that matters, skip this step and rely
 on the skill firing.
 
 **2. Put it in the definition of done.** Wherever your `CLAUDE.md` says what
@@ -200,8 +204,8 @@ Copy-Item Accessible-Vibe-Coding\agents\*.md "$env:USERPROFILE\.claude\agents\"
 ```
 
 `accessibility-specialist` does not carry its own copy of the rules, so install
-both rules skills before you use it. Its frontmatter lists `accessibility`
-and `accessible-forms` under `skills:`, and Claude Code injects the body of each
+the `accessibility` and `accessible-forms` skills before you use it. Its
+frontmatter lists both under `skills:`, and Claude Code injects the body of each
 `SKILL.md` when the agent starts. The `references/` and `scripts/` folders are
 not injected; the agent reads those from the skill folder when it needs them.
 Claude Code skips a listed skill it can't find and says so only in the debug
@@ -237,6 +241,7 @@ macOS and Linux:
 cd Accessible-Vibe-Coding/skills
 zip -r accessibility.zip accessibility
 zip -r accessible-forms.zip accessible-forms
+zip -r accessible-tables.zip accessible-tables
 ```
 
 Windows PowerShell:
@@ -245,6 +250,7 @@ Windows PowerShell:
 cd Accessible-Vibe-Coding\skills
 Compress-Archive -Path accessibility -DestinationPath accessibility.zip
 Compress-Archive -Path accessible-forms -DestinationPath accessible-forms.zip
+Compress-Archive -Path accessible-tables -DestinationPath accessible-tables.zip
 ```
 
 Then upload each ZIP from the Skills section of your settings (under
@@ -259,10 +265,11 @@ Cowork and cloud sessions — not just the desktop app.
 
 ## Cursor, Windsurf, and Copilot
 
-These tools read a rules file, not a skill. `rules/accessibility.md` and
-`rules/accessible-forms.md` hold the same content as the skills with the frontmatter
-stripped and every repo-relative path rewritten to an absolute URL, so they keep
-working once copied out of this repo.
+These tools read a rules file, not a skill. `rules/accessibility.md`,
+`rules/accessible-forms.md`, and `rules/accessible-tables.md` hold the same content
+as the skills with the frontmatter stripped and every repo-relative path
+rewritten to an absolute URL, so they keep working once copied out of this
+repo.
 
 The body is the same everywhere. What changes is the destination, the
 frontmatter you put on top, and on Windsurf a split to fit its size cap. This
@@ -278,6 +285,7 @@ Copy into `.cursor/rules/` in your project and rename to `.mdc`:
 mkdir -p .cursor/rules
 cp Accessible-Vibe-Coding/rules/accessibility.md .cursor/rules/accessibility.mdc
 cp Accessible-Vibe-Coding/rules/accessible-forms.md .cursor/rules/accessible-forms.mdc
+cp Accessible-Vibe-Coding/rules/accessible-tables.md .cursor/rules/accessible-tables.mdc
 ```
 
 Then add Cursor's frontmatter at the top of each file. For an always-on ruleset:
@@ -290,23 +298,24 @@ alwaysApply: true
 ```
 
 Set `alwaysApply: true` for `accessibility`, since the whole point is that
-it fires on any markup generation without being asked. For `accessible-forms`, either
-set it too, or scope it with `globs` to your template and component paths and
-let Cursor attach it when those files are in play.
+it fires on any markup generation without being asked. For `accessible-forms` and
+`accessible-tables`, either set it too, or scope each with `globs` to your
+template and component paths and let Cursor attach it when those files are in
+play.
 
 ### Windsurf
 
 Windsurf reads `.devin/rules/*.md`, with `.windsurf/rules/*.md` still honored as
-a fallback. It also caps each rule file at 12,000 characters, and both files in
-`rules/` are over that. A straight copy loads, but the tail of each file is
-dropped with no warning.
+a fallback. It also caps each rule file at 12,000 characters, and all three
+files in `rules/` are over that. A straight copy loads, but the tail of each
+file is dropped with no warning.
 
-So don't copy these two files as they are. Split each one in two with the
+So don't copy these files as they are. Split each one into parts with the
 commands in [the Windsurf section of the other-tools
 guide](guides/using-rules-in-other-tools.md#3-windsurf-devin-desktop).
 
-Each of the four resulting files needs Windsurf's frontmatter, which uses
-`trigger:` rather than Cursor's boolean:
+Each resulting file needs Windsurf's frontmatter, which uses `trigger:` rather
+than Cursor's boolean:
 
 ```markdown
 ---
@@ -317,11 +326,12 @@ trigger: always_on
 The other modes are `model_decision`, `glob` (which also needs a `globs:`
 pattern), and `manual`. Use `always_on` for accessibility.
 
-**Both files are over Windsurf's 12,000-character limit per rule file.** Copied
-whole, the end of each file is silently ignored — for `accessibility` that
-includes the Hard rules and Litmus checks. Split each file at a section boundary
-before you rely on it; [the Windsurf section of the other-tools
-guide](guides/using-rules-in-other-tools.md#the-12000-character-cap--both-files-need-splitting)
+**All three files are over Windsurf's 12,000-character limit per rule file.**
+Copied whole, the end of each file is silently ignored — for
+`accessibility` that includes the Hard rules and Litmus checks. Split
+each file at section boundaries before you rely on it; [the Windsurf section
+of the other-tools
+guide](guides/using-rules-in-other-tools.md#the-12000-character-cap--every-file-needs-splitting)
 has the exact split commands.
 
 ### GitHub Copilot
@@ -377,7 +387,7 @@ read those setting sources:
 ```python
 options = ClaudeAgentOptions(
     setting_sources=["user", "project"],
-    skills=["accessibility", "accessible-forms"],
+    skills=["accessibility", "accessible-forms", "accessible-tables"],
 )
 ```
 
@@ -395,6 +405,7 @@ Skills are just files, so updating is a re-copy:
 cd Accessible-Vibe-Coding && git pull
 cp -r skills/accessibility ~/.claude/skills/
 cp -r skills/accessible-forms ~/.claude/skills/
+cp -r skills/accessible-tables ~/.claude/skills/
 cp agents/*.md ~/.claude/agents/
 ```
 
@@ -461,7 +472,9 @@ legitimate issue to open.
 **Both skills fired and gave conflicting guidance.** They're designed to
 overlap. `accessible-forms` is the source of truth for anything form-related — layout,
 tokens, and the error pattern — and `accessibility` covers everything
-else. Where they disagree on a form, `accessible-forms` wins.
+else. Where they disagree on a form, `accessible-forms` wins. The same goes for
+`accessible-tables` on a data table: it is the detail behind the one-line
+table rule in `accessibility`, and on a table it wins.
 
 **I installed it at project scope and my teammate doesn't have it.** Commit
 `.claude/skills/` to the repo. It's checked-in configuration, same as
