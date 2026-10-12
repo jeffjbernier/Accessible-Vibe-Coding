@@ -2,14 +2,14 @@
 /**
  * form-check.js — check form markup against the §8 merge-gating checklist.
  *
- * Part of the form-rules skill. This is deliberately NOT another axe wrapper:
+ * Part of the accessible-forms skill. This is deliberately NOT another axe wrapper:
  * it looks for the failures axe passes. A placeholder-only label, a <div>
  * pretending to be a submit button, a disabled submit, a dangling
  * aria-describedby — axe waves all of those through, and every one of them is
  * a §8 gate.
  *
  * Run it alongside axe, not instead of it:
- *   node ../accessibility-rules/scripts/axe-check.js page.html
+ *   node ../accessibility/scripts/axe-check.js page.html
  *   node scripts/form-check.js page.html
  *
  * Usage:

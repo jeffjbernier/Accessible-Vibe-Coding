@@ -47,8 +47,8 @@ node tools/build-rules.mjs
 It prints one line per file:
 
 ```text
-wrote rules/accessibility-rules.md (<N> bytes)
-wrote rules/form-rules.md (<N> bytes)
+wrote rules/accessibility.md (<N> bytes)
+wrote rules/accessible-forms.md (<N> bytes)
 ```
 
 ### Verify without writing
@@ -74,7 +74,7 @@ on every pull request that touches `skills/`, `rules/`, or the generator itself.
 
 ## Running the tests
 
-`tests/` holds regression tests for `skills/form-rules/scripts/form-check.js`:
+`tests/` holds regression tests for `skills/accessible-forms/scripts/form-check.js`:
 fixture pages it must fail or pass. The checker drives Chromium through
 Playwright, the one thing here that needs installing. Install it without
 creating a `package.json`:
@@ -86,7 +86,7 @@ node --test "tests/*.test.mjs"
 ```
 
 The `form-check tests` workflow runs the same commands on every pull request
-that touches `skills/form-rules/` or `tests/`. When you change what the checker
+that touches `skills/accessible-forms/` or `tests/`. When you change what the checker
 flags, add a fixture that fails before your change and passes after it.
 
 ---
@@ -122,7 +122,7 @@ for. Open `tools/build-rules.mjs`, find that entry in the `rewrites` table, and
 update the `from` string to your new wording:
 
 ```text
-Error: skills/form-rules/SKILL.md: rewrite target not found.
+Error: skills/accessible-forms/SKILL.md: rewrite target not found.
   Looked for: "live in `references/markup.md`. Read that file"...
 ```
 
@@ -154,7 +154,7 @@ types, like `a11y-scan`, or a skill that drives a live tool, like `nvda-scan` â€
 add its name to `NO_RULES_FILE` in `tools/build-rules.mjs` instead. No rules
 file is generated for it, and CI does not expect one. Slash commands also set
 `disable-model-invocation: true` in their frontmatter so they never fire on
-their own and never compete with `accessibility-rules` for a trigger.
+their own and never compete with `accessibility` for a trigger.
 
 ## Adding an agent
 

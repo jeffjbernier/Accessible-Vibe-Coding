@@ -1,6 +1,6 @@
 name: form-check tests
 
-# form-check.js is the machine half of the form-rules §8 gate. A change to the
+# form-check.js is the machine half of the accessible-forms §8 gate. A change to the
 # checker that stops it failing a page it should fail — or starts failing a
 # page it should pass — ships silently unless something runs it. This job runs
 # the fixtures in tests/form-check/ against it.
@@ -10,7 +10,7 @@ on:
     branches: [main]
   pull_request:
     paths:
-      - 'skills/form-rules/**'
+      - 'skills/accessible-forms/**'
       - 'tests/**'
       - '.github/workflows/form-check-tests.yml'
 

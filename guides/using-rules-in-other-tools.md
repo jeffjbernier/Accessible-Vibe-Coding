@@ -7,7 +7,7 @@ that way. Cursor, Windsurf, and GitHub Copilot each read a *rules file*: plain
 markdown, a different path per tool, a different frontmatter dialect on top, and
 different conditions under which it gets injected into the prompt at all.
 
-That's what `rules/accessibility-rules.md` and `rules/form-rules.md` are for.
+That's what `rules/accessibility.md` and `rules/accessible-forms.md` are for.
 Same content as the skills, frontmatter stripped, repo-relative paths rewritten
 to absolute URLs so they still resolve once copied out.
 
@@ -58,8 +58,8 @@ files slightly — it errs toward the safe side of a character cap.
 
 | File | Characters | Lines |
 | --- | --- | --- |
-| `rules/accessibility-rules.md` | ~18,200 | 386 |
-| `rules/form-rules.md` | ~21,100 | 442 |
+| `rules/accessibility.md` | ~18,200 | 386 |
+| `rules/accessible-forms.md` | ~21,100 | 442 |
 
 Against each platform's published limit or guidance:
 
@@ -84,8 +84,8 @@ the rules pane. Renaming on copy is not cosmetic:
 
 ```bash
 mkdir -p .cursor/rules
-cp Accessible-Vibe-Coding/rules/accessibility-rules.md .cursor/rules/accessibility-rules.mdc
-cp Accessible-Vibe-Coding/rules/form-rules.md .cursor/rules/form-rules.mdc
+cp Accessible-Vibe-Coding/rules/accessibility.md .cursor/rules/accessibility.mdc
+cp Accessible-Vibe-Coding/rules/accessible-forms.md .cursor/rules/accessible-forms.mdc
 ```
 
 For rules that follow you across every project instead, use **Customize →
@@ -106,7 +106,7 @@ Cursor has exactly three frontmatter fields — `alwaysApply`, `description`,
 | `false` | set | — | The agent reads the description and decides. |
 | `false` | — | — | Only when you `@`-mention the rule by name. |
 
-For `accessibility-rules`, use the first row and nothing else:
+For `accessibility`, use the first row and nothing else:
 
 ```markdown
 ---
@@ -118,7 +118,7 @@ That's the whole frontmatter. Don't add a `globs` line alongside it — Cursor
 staff have pointed at exactly that combination as a cause of rules failing to
 inject, and globs are ignored under `alwaysApply: true` anyway.
 
-`form-rules` can go either way. Always-on is the safe default. If you'd rather
+`accessible-forms` can go either way. Always-on is the safe default. If you'd rather
 scope it, drop `alwaysApply` to `false` and attach it to the paths where forms
 actually live:
 
@@ -138,7 +138,7 @@ directly.
 
 The third row of that table — description-only, "apply intelligently" — is a
 coin flip for a ruleset like this, and not one worth taking. The premise of
-`accessibility-rules` is that it fires when nobody mentioned accessibility.
+`accessibility` is that it fires when nobody mentioned accessibility.
 Handing the model a description and asking it to notice is the exact failure
 mode the skill was written to prevent.
 
@@ -196,8 +196,8 @@ for the same reason as Cursor.
 ### The 12,000-character cap — both files need splitting
 
 This is the one real obstacle in this guide. Windsurf caps each workspace rule
-file at 12,000 characters. `accessibility-rules.md` is ~18,200 and
-`form-rules.md` is ~21,100. Over the cap, the tail is not honored, and nothing
+file at 12,000 characters. `accessibility.md` is ~18,200 and
+`accessible-forms.md` is ~21,100. Over the cap, the tail is not honored, and nothing
 tells you which half the model got.
 
 Split each at a section boundary, repeating the header block so part two still
@@ -215,8 +215,8 @@ split_rules() {  # <rules file name> <heading that starts part two>
   { sed -n "1,${head_end}p" "$src"; sed -n "${at},\$p" "$src"; } > .devin/rules/$1-2.md
 }
 
-split_rules accessibility-rules 'Media and captions'
-split_rules form-rules '8\. '
+split_rules accessibility 'Media and captions'
+split_rules accessible-forms '8\. '
 ```
 
 That splits the accessibility rules before "Media and captions" and the forms
@@ -252,7 +252,7 @@ agent, and Copilot code review. If you install one thing, install this one:
 
 ```bash
 mkdir -p .github
-cat Accessible-Vibe-Coding/rules/accessibility-rules.md >> .github/copilot-instructions.md
+cat Accessible-Vibe-Coding/rules/accessibility.md >> .github/copilot-instructions.md
 ```
 
 No frontmatter; Copilot takes plain markdown here. The setting that governs it,
@@ -263,18 +263,18 @@ GitHub's guidance is that this file should be "no longer than 2 pages." Both
 rulesets blow past that, and there's no published hard cap to hit. In practice a
 long repo-wide instruction file works; the cost is dilution, since every
 instruction competes for the model's attention on every request. If you're
-appending both rulesets plus your own house style, put `accessibility-rules`
-here and scope `form-rules` by path instead.
+appending both rulesets plus your own house style, put `accessibility`
+here and scope `accessible-forms` by path instead.
 
 ### Path-scoped: `.github/instructions/*.instructions.md`
 
 Supported in VS Code, Visual Studio, JetBrains, Xcode, the coding agent, and
-code review — but **not** in github.com chat. Good fit for `form-rules`:
+code review — but **not** in github.com chat. Good fit for `accessible-forms`:
 
 ```bash
 mkdir -p .github/instructions
-cp Accessible-Vibe-Coding/rules/form-rules.md \
-   .github/instructions/form-rules.instructions.md
+cp Accessible-Vibe-Coding/rules/accessible-forms.md \
+   .github/instructions/accessible-forms.instructions.md
 ```
 
 Then add the `applyTo` glob at the top. Multiple patterns go comma-separated
@@ -322,8 +322,8 @@ If you support a mixed team on mixed tools, this is the highest-leverage single
 file in this guide:
 
 ```bash
-cat Accessible-Vibe-Coding/rules/accessibility-rules.md >> AGENTS.md
-cat Accessible-Vibe-Coding/rules/form-rules.md >> AGENTS.md
+cat Accessible-Vibe-Coding/rules/accessibility.md >> AGENTS.md
+cat Accessible-Vibe-Coding/rules/accessible-forms.md >> AGENTS.md
 ```
 
 Agents read the nearest `AGENTS.md` up the directory tree, so a package-level
@@ -331,7 +331,7 @@ file overrides the root for that package. Cursor also treats `CLAUDE.md` this
 way — and applies it unconditionally, regardless of any `alwaysApply` setting.
 
 The tradeoff is that AGENTS.md is always-on and unscoped by design. There's no
-way to attach `form-rules` only to your template directory. For a repo where
+way to attach `accessible-forms` only to your template directory. For a repo where
 forms are most of the surface, that's fine. For a large repo where they aren't,
 the path-scoped options above are the better tool.
 
@@ -374,7 +374,7 @@ you're over, or a trigger set to something other than always-on.
 | --- | --- |
 | Cursor only | `.cursor/rules/*.mdc`, `alwaysApply: true` |
 | Windsurf only | `.devin/rules/*.md`, `trigger: always_on`, split under 12,000 chars |
-| Copilot, one IDE | `.github/copilot-instructions.md` + path-scoped `form-rules` |
+| Copilot, one IDE | `.github/copilot-instructions.md` + path-scoped `accessible-forms` |
 | Copilot across IDEs | `.github/copilot-instructions.md` only — the one type supported everywhere |
 | Mixed team, mixed tools | `AGENTS.md` at the root, plus tool-specific files for anyone who needs scoping |
 | Claude Code | The skills, not these files. See [INSTALL.md](../INSTALL.md). |

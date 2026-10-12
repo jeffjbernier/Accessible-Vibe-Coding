@@ -37,12 +37,12 @@ Three skills, in `skills/`:
 <!-- markdownlint-disable MD013 -->
 | Skill | What it does |
 | --- | --- |
-| `accessibility-rules` | Constrains any UI, page, component, or markup the assistant generates — contrast, semantics, keyboard and focus, ARIA, motion, media, cognitive load |
-| `form-rules` | Constrains forms, form fields, and single-record display pages — grid, tokens, field anatomy, validation, and the error pattern |
+| `accessibility` | Constrains any UI, page, component, or markup the assistant generates — contrast, semantics, keyboard and focus, ARIA, motion, media, cognitive load |
+| `accessible-forms` | Constrains forms, form fields, and single-record display pages — grid, tokens, field anatomy, validation, and the error pattern |
 | `nvda-scan` | Drives a live NVDA session over the page open in Chrome and reports what a screen-reader user actually hears for every heading and form control. Windows only; needs the setup in the NVDA guide below |
 <!-- markdownlint-enable MD013 -->
 
-The first two overlap on purpose. Where they disagree about a form, `form-rules`
+The first two overlap on purpose. Where they disagree about a form, `accessible-forms`
 wins.
 
 Three slash commands, also in `skills/`. These only run when you type them:
@@ -60,8 +60,8 @@ Plus the two rulesets as standalone files, in `rules/`:
 <!-- markdownlint-disable MD013 -->
 | File | For |
 | --- | --- |
-| `rules/accessibility-rules.md` | Cursor, Windsurf, Copilot, and anything else that reads a rules file rather than an Agent Skill |
-| `rules/form-rules.md` | The same, for forms |
+| `rules/accessibility.md` | Cursor, Windsurf, Copilot, and anything else that reads a rules file rather than an Agent Skill |
+| `rules/accessible-forms.md` | The same, for forms |
 <!-- markdownlint-enable MD013 -->
 
 These are generated from the skills by `tools/build-rules.mjs` — same rules, no
@@ -86,7 +86,7 @@ And two agent definitions, in `agents/`:
 | Agent | What it does |
 | --- | --- |
 | `accessibility-specialist` | Hands-on: builds or fixes a component to WCAG 2.2 AA, wires up ARIA on custom widgets, clears an axe-core report. Can edit files. Needs both rules skills installed |
-| `ux-design-agent` | Read-only reviewer. Reads HTML, JSX, and CSS and reports accessibility, hierarchy, typography, color, spacing, and responsiveness problems with a file, line, and fix for each. Never edits. Needs the `accessibility-rules` skill for its accessibility category |
+| `ux-design-agent` | Read-only reviewer. Reads HTML, JSX, and CSS and reports accessibility, hierarchy, typography, color, spacing, and responsiveness problems with a file, line, and fix for each. Never edits. Needs the `accessibility` skill for its accessibility category |
 <!-- markdownlint-enable MD013 -->
 
 Neither pins a model, so each inherits whatever your session is running.
@@ -103,13 +103,18 @@ This README only lists what's actually in the repo today.
 ```bash
 git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 mkdir -p ~/.claude/skills
-cp -r Accessible-Vibe-Coding/skills/accessibility-rules ~/.claude/skills/
-cp -r Accessible-Vibe-Coding/skills/form-rules ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessibility ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessible-forms ~/.claude/skills/
 ```
 
 Run `/skills` in Claude Code to confirm both loaded. For project-scoped
 installs, Windows paths, Claude Desktop and claude.ai uploads, and the Agent
 SDK, see [INSTALL.md](INSTALL.md).
+
+Upgrading from an earlier copy? Version 2.0.0 renamed `accessibility-rules` to
+`accessibility` and `form-rules` to `accessible-forms`. Follow [Upgrading from
+the old skill names](INSTALL.md#upgrading-from-the-old-skill-names) so the old
+and new skills don't both load.
 
 On Windows with NVDA installed, `nvda-scan` copies the same way. It needs an MCP
 server registered first —
@@ -124,9 +129,9 @@ each tool does with the file, size caps, and how to verify it fired — read
 
 ### 2. Build something
 
-The skills trigger on their own. `accessibility-rules` fires on any UI or markup
+The skills trigger on their own. `accessibility` fires on any UI or markup
 generation even when nobody says the word "accessibility" — that's the point. If
-it stays quiet when it shouldn't, name it directly: "use the accessibility-rules
+it stays quiet when it shouldn't, name it directly: "use the accessibility
 skill."
 
 ### 3. Verify by hand

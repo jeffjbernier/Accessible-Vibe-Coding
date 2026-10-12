@@ -9,8 +9,8 @@ Three skills ship here:
 <!-- markdownlint-disable MD013 -->
 | Skill | What it does |
 | --- | --- |
-| `accessibility-rules` | Constrains any UI, page, component, or markup the assistant generates |
-| `form-rules` | Constrains forms, form fields, and single-record display pages |
+| `accessibility` | Constrains any UI, page, component, or markup the assistant generates |
+| `accessible-forms` | Constrains forms, form fields, and single-record display pages |
 | `nvda-scan` | Drives a live NVDA screen-reader session over a page in Chrome. Windows only, and it needs the nvda-mcp server from [guides/automate-nvda-testing.md](guides/automate-nvda-testing.md) before it can connect |
 <!-- markdownlint-enable MD013 -->
 
@@ -51,7 +51,7 @@ form; it only runs inside Claude Code.
 <!-- markdownlint-enable MD013 -->
 
 Each skill needs its **own directory**, and the directory name should match the
-`name` in the skill's frontmatter. So `accessibility-rules/SKILL.md`, not a
+`name` in the skill's frontmatter. So `accessibility/SKILL.md`, not a
 loose `SKILL.md` or a renamed folder.
 
 Use personal scope if you want accessible output everywhere. Use project scope
@@ -63,16 +63,16 @@ get them too.
 ```bash
 git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 mkdir -p ~/.claude/skills
-cp -r Accessible-Vibe-Coding/skills/accessibility-rules ~/.claude/skills/
-cp -r Accessible-Vibe-Coding/skills/form-rules ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessibility ~/.claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessible-forms ~/.claude/skills/
 ```
 
 For a single project instead, swap the destination:
 
 ```bash
 mkdir -p .claude/skills
-cp -r Accessible-Vibe-Coding/skills/accessibility-rules .claude/skills/
-cp -r Accessible-Vibe-Coding/skills/form-rules .claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessibility .claude/skills/
+cp -r Accessible-Vibe-Coding/skills/accessible-forms .claude/skills/
 ```
 
 `nvda-scan` is Windows-only, so it is left out of these two blocks. The
@@ -90,8 +90,8 @@ cp -r Accessible-Vibe-Coding/skills/a11y-report ~/.claude/skills/
 ```powershell
 git clone https://github.com/jeffjbernier/Accessible-Vibe-Coding.git
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"
-Copy-Item -Recurse Accessible-Vibe-Coding\skills\accessibility-rules "$env:USERPROFILE\.claude\skills\"
-Copy-Item -Recurse Accessible-Vibe-Coding\skills\form-rules "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse Accessible-Vibe-Coding\skills\accessibility "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse Accessible-Vibe-Coding\skills\accessible-forms "$env:USERPROFILE\.claude\skills\"
 Copy-Item -Recurse Accessible-Vibe-Coding\skills\nvda-scan "$env:USERPROFILE\.claude\skills\"
 ```
 
@@ -131,7 +131,7 @@ edit one, edit the one that's actually winning.
 
 ### Making the rules a gate
 
-Installed as a skill, `accessibility-rules` is advisory: Claude loads it when it
+Installed as a skill, `accessibility` is advisory: Claude loads it when it
 judges the task to be UI work, which is most of the time but not all of it. Two
 lines in `CLAUDE.md` turn it into a gate.
 
@@ -140,18 +140,18 @@ lines in `CLAUDE.md` turn it into a gate.
 
 ```bash
 mkdir -p ~/.claude/rules
-cp Accessible-Vibe-Coding/rules/accessibility-rules.md ~/.claude/rules/
+cp Accessible-Vibe-Coding/rules/accessibility.md ~/.claude/rules/
 ```
 
 Then add one line to `~/.claude/CLAUDE.md`:
 
 ```markdown
-@rules/accessibility-rules.md
+@rules/accessibility.md
 ```
 
 The `@` import resolves relative to the `CLAUDE.md` that contains it, so the
 same line works in a project `CLAUDE.md` with the file at
-`<repo>/rules/accessibility-rules.md`. The cost is real: the file is about 18
+`<repo>/rules/accessibility.md`. The cost is real: the file is about 18
 KB, roughly 4,300 tokens on every turn. If that matters, skip this step and rely
 on the skill firing.
 
@@ -165,7 +165,7 @@ on the skill firing.
   throughout).
 ```
 
-`axe-check.js` ships inside the skill at `skills/accessibility-rules/scripts/`.
+`axe-check.js` ships inside the skill at `skills/accessibility/scripts/`.
 It takes a URL or a local HTML file, defaults to the WCAG 2.2 AA rule set, and
 exits non-zero on violations. It needs `playwright` and `axe-core` installed in
 the project being scanned.
@@ -200,13 +200,13 @@ Copy-Item Accessible-Vibe-Coding\agents\*.md "$env:USERPROFILE\.claude\agents\"
 ```
 
 `accessibility-specialist` does not carry its own copy of the rules, so install
-both rules skills before you use it. Its frontmatter lists `accessibility-rules`
-and `form-rules` under `skills:`, and Claude Code injects the body of each
+both rules skills before you use it. Its frontmatter lists `accessibility`
+and `accessible-forms` under `skills:`, and Claude Code injects the body of each
 `SKILL.md` when the agent starts. The `references/` and `scripts/` folders are
 not injected; the agent reads those from the skill folder when it needs them.
 Claude Code skips a listed skill it can't find and says so only in the debug
 log, so the agent is written to stop and tell you when either skill is missing.
-`ux-design-agent` preloads `accessibility-rules` the same way for its
+`ux-design-agent` preloads `accessibility` the same way for its
 accessibility category. Without the skill it says so under that heading and
 still reviews the other five.
 
@@ -228,23 +228,23 @@ reports; it never changes code. Keep it that way if you fork it.
 
 These surfaces take an uploaded skill rather than a filesystem path. Package the
 skill folder as a ZIP with the **folder itself at the root of the archive** —
-the archive should contain `accessibility-rules/SKILL.md`, not a bare
+the archive should contain `accessibility/SKILL.md`, not a bare
 `SKILL.md`.
 
 macOS and Linux:
 
 ```bash
 cd Accessible-Vibe-Coding/skills
-zip -r accessibility-rules.zip accessibility-rules
-zip -r form-rules.zip form-rules
+zip -r accessibility.zip accessibility
+zip -r accessible-forms.zip accessible-forms
 ```
 
 Windows PowerShell:
 
 ```powershell
 cd Accessible-Vibe-Coding\skills
-Compress-Archive -Path accessibility-rules -DestinationPath accessibility-rules.zip
-Compress-Archive -Path form-rules -DestinationPath form-rules.zip
+Compress-Archive -Path accessibility -DestinationPath accessibility.zip
+Compress-Archive -Path accessible-forms -DestinationPath accessible-forms.zip
 ```
 
 Then upload each ZIP from the Skills section of your settings (under
@@ -259,8 +259,8 @@ Cowork and cloud sessions — not just the desktop app.
 
 ## Cursor, Windsurf, and Copilot
 
-These tools read a rules file, not a skill. `rules/accessibility-rules.md` and
-`rules/form-rules.md` hold the same content as the skills with the frontmatter
+These tools read a rules file, not a skill. `rules/accessibility.md` and
+`rules/accessible-forms.md` hold the same content as the skills with the frontmatter
 stripped and every repo-relative path rewritten to an absolute URL, so they keep
 working once copied out of this repo.
 
@@ -276,8 +276,8 @@ Copy into `.cursor/rules/` in your project and rename to `.mdc`:
 
 ```bash
 mkdir -p .cursor/rules
-cp Accessible-Vibe-Coding/rules/accessibility-rules.md .cursor/rules/accessibility-rules.mdc
-cp Accessible-Vibe-Coding/rules/form-rules.md .cursor/rules/form-rules.mdc
+cp Accessible-Vibe-Coding/rules/accessibility.md .cursor/rules/accessibility.mdc
+cp Accessible-Vibe-Coding/rules/accessible-forms.md .cursor/rules/accessible-forms.mdc
 ```
 
 Then add Cursor's frontmatter at the top of each file. For an always-on ruleset:
@@ -289,8 +289,8 @@ alwaysApply: true
 ---
 ```
 
-Set `alwaysApply: true` for `accessibility-rules`, since the whole point is that
-it fires on any markup generation without being asked. For `form-rules`, either
+Set `alwaysApply: true` for `accessibility`, since the whole point is that
+it fires on any markup generation without being asked. For `accessible-forms`, either
 set it too, or scope it with `globs` to your template and component paths and
 let Cursor attach it when those files are in play.
 
@@ -318,7 +318,7 @@ The other modes are `model_decision`, `glob` (which also needs a `globs:`
 pattern), and `manual`. Use `always_on` for accessibility.
 
 **Both files are over Windsurf's 12,000-character limit per rule file.** Copied
-whole, the end of each file is silently ignored — for `accessibility-rules` that
+whole, the end of each file is silently ignored — for `accessibility` that
 includes the Hard rules and Litmus checks. Split each file at a section boundary
 before you rely on it; [the Windsurf section of the other-tools
 guide](guides/using-rules-in-other-tools.md#the-12000-character-cap--both-files-need-splitting)
@@ -333,7 +333,7 @@ markdown with no frontmatter there:
 
 ```bash
 mkdir -p .github
-cat Accessible-Vibe-Coding/rules/accessibility-rules.md >> .github/copilot-instructions.md
+cat Accessible-Vibe-Coding/rules/accessibility.md >> .github/copilot-instructions.md
 ```
 
 For path-scoped coverage, copy it in as its own file and add the `applyTo` glob:
@@ -377,7 +377,7 @@ read those setting sources:
 ```python
 options = ClaudeAgentOptions(
     setting_sources=["user", "project"],
-    skills=["accessibility-rules", "form-rules"],
+    skills=["accessibility", "accessible-forms"],
 )
 ```
 
@@ -393,8 +393,8 @@ Skills are just files, so updating is a re-copy:
 
 ```bash
 cd Accessible-Vibe-Coding && git pull
-cp -r skills/accessibility-rules ~/.claude/skills/
-cp -r skills/form-rules ~/.claude/skills/
+cp -r skills/accessibility ~/.claude/skills/
+cp -r skills/accessible-forms ~/.claude/skills/
 cp agents/*.md ~/.claude/agents/
 ```
 
@@ -405,12 +405,39 @@ If you've edited a skill locally, `git pull` won't touch your copy under
 `~/.claude/skills/` — diff the two before overwriting so you don't lose your
 changes.
 
+### Upgrading from the old skill names
+
+Version 2.0.0 renamed two skills, and the files in `rules/` to match:
+
+| Old name | New name |
+| --- | --- |
+| `accessibility-rules` | `accessibility` |
+| `form-rules` | `accessible-forms` |
+
+A re-copy alone leaves the old folders in place, and Claude Code then loads
+the old skill and the new one side by side. Remove the old copies first:
+
+```bash
+rm -rf ~/.claude/skills/accessibility-rules ~/.claude/skills/form-rules
+```
+
+Then update everything that names a skill or a rules file:
+
+- An `@rules/accessibility-rules.md` or `@rules/form-rules.md` import in a
+  `CLAUDE.md`.
+- A `skills:` list in an agent definition, and `skills=[...]` in the Agent
+  SDK. Re-copying `agents/*.md` from this repo updates the two agents here.
+- Rules files copied into `.cursor/rules/`, `.devin/rules/`, `.github/`, or
+  `AGENTS.md`. Copies made before the rename link to script and reference
+  paths that no longer exist. Re-copy them from `rules/` and delete the old
+  ones.
+
 ## Uninstalling
 
 Delete the skill's directory:
 
 ```bash
-rm -rf ~/.claude/skills/accessibility-rules
+rm -rf ~/.claude/skills/accessibility
 ```
 
 For an uploaded skill, remove it from the Skills section of settings.
@@ -425,16 +452,16 @@ a subdirectory. And the folder must be inside a `skills/` directory that is
 itself inside `.claude/`.
 
 **The skill shows up but never fires.** These skills trigger on descriptions,
-not keywords you type. `accessibility-rules` is written to fire on any UI or
+not keywords you type. `accessibility` is written to fire on any UI or
 markup generation even when nobody says "accessibility." If it's staying quiet,
-you can force it by name: "use the accessibility-rules skill." Persistent
+you can force it by name: "use the accessibility skill." Persistent
 under-triggering usually means the description needs to be pushier, which is a
 legitimate issue to open.
 
 **Both skills fired and gave conflicting guidance.** They're designed to
-overlap. `form-rules` is the source of truth for anything form-related — layout,
-tokens, and the error pattern — and `accessibility-rules` covers everything
-else. Where they disagree on a form, `form-rules` wins.
+overlap. `accessible-forms` is the source of truth for anything form-related — layout,
+tokens, and the error pattern — and `accessibility` covers everything
+else. Where they disagree on a form, `accessible-forms` wins.
 
 **I installed it at project scope and my teammate doesn't have it.** Commit
 `.claude/skills/` to the repo. It's checked-in configuration, same as

@@ -40,10 +40,10 @@ const check = process.argv.includes('--check');
  * ------------------------------------------------------------------ */
 
 const rewrites = {
-  'accessibility-rules': () => [
+  'accessibility': () => [
     [
-      '**Relationship to the form-rules skill.** For form layout, grid, tokens, and the\nerror pattern, the `form-rules` skill is the source of truth. Where the two\noverlap, form-rules wins. Touch-target sizing is defined once in "Touch and\npointer" and applies across this file.',
-      '**Relationship to the form-rules ruleset.** For form layout, grid, tokens,\nand the error pattern, the companion `form-rules` file is the source of\ntruth. Where the two overlap, form-rules wins. Touch-target sizing is\ndefined once in "Touch and pointer" and applies across this file.',
+      '**Relationship to the accessible-forms skill.** For form layout, grid, tokens,\nand the error pattern, the `accessible-forms` skill is the source of truth.\nWhere the two overlap, accessible-forms wins. Touch-target sizing is defined\nonce in "Touch and pointer" and applies across this file.',
+      '**Relationship to the accessible-forms ruleset.** For form layout, grid,\ntokens, and the error pattern, the companion `accessible-forms` file is the\nsource of truth. Where the two overlap, accessible-forms wins. Touch-target\nsizing is defined once in "Touch and pointer" and applies across this file.',
     ],
     [
       'apply whenever this skill is\nloaded, whether or not the request mentions',
@@ -58,22 +58,22 @@ const rewrites = {
       'runtime (including [references/patterns.md][patterns]).',
     ],
   ],
-  'form-rules': (blob) => [
+  'accessible-forms': (blob) => [
     [
       'the read-only record display — live in `references/markup.md`. Read that file\nbefore writing or reviewing any form markup. Use it as a concrete starting\npoint only. If the reference file differs from §2 or §3, follow §2 and §3 and\nnote the discrepancy in a code comment or TODO so the mismatch is explicit. If\n`references/markup.md` is not present or cannot be read, proceed using §2 and §3\nas the sole source of truth and note in a code comment that the reference file\nwas unavailable.',
       'the read-only record display — live in [references/markup.md][markup]. Read\nthat file before writing or reviewing any form markup. Use it as a concrete\nstarting point only. If the reference file differs from §2 or §3, follow §2\nand §3 and note the discrepancy in a code comment or TODO so the mismatch is\nexplicit. If [references/markup.md][markup] is not present or cannot be read,\nproceed using §2 and §3 as the sole source of truth and note in a code\ncomment that the reference file was unavailable.',
     ],
     [
       '**Checking the mechanical half.** This skill bundles `scripts/form-check.js`,',
-      `**Checking the mechanical half.** The accessible-vibe-coding repo ships [form-check.js](${blob}/skills/form-rules/scripts/form-check.js),`,
+      `**Checking the mechanical half.** The accessible-vibe-coding repo ships [form-check.js](${blob}/skills/accessible-forms/scripts/form-check.js),`,
     ],
     [
-      "the accessibility-rules skill's `axe-check.js` covers the rules this one",
-      "the accessibility-rules ruleset's `axe-check.js` covers the rules this one",
+      "the accessibility skill's `axe-check.js` covers the rules this one",
+      "the accessibility ruleset's `axe-check.js` covers the rules this one",
     ],
     [
       '  "Form grid" in `references/markup.md`.',
-      `  "Form grid" in [references/markup.md](${blob}/skills/form-rules/references/markup.md).`,
+      `  "Form grid" in [references/markup.md](${blob}/skills/accessible-forms/references/markup.md).`,
     ],
     [
       'treat every line as its own gate. `scripts/form-check.js` (see §8) catches the',
@@ -86,12 +86,12 @@ const rewrites = {
 // rewrites above that would put one mid-line use a reference link instead,
 // and the definition goes at the end of the file.
 const links = {
-  'accessibility-rules': (blob) => ({
-    'axe-check': `${blob}/skills/accessibility-rules/scripts/axe-check.js`,
-    patterns: `${blob}/skills/accessibility-rules/references/patterns.md`,
+  'accessibility': (blob) => ({
+    'axe-check': `${blob}/skills/accessibility/scripts/axe-check.js`,
+    patterns: `${blob}/skills/accessibility/references/patterns.md`,
   }),
-  'form-rules': (blob) => ({
-    markup: `${blob}/skills/form-rules/references/markup.md`,
+  'accessible-forms': (blob) => ({
+    markup: `${blob}/skills/accessible-forms/references/markup.md`,
   }),
 };
 
