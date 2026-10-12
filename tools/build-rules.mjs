@@ -4,7 +4,8 @@
  *
  * The skills are the single source of truth. This script produces the
  * standalone always-apply rules files that Cursor, Windsurf, Copilot and
- * other assistants consume, because those tools cannot load Agent Skills.
+ * other assistants take when the rules must be sent with every request,
+ * not loaded on demand as an Agent Skill.
  *
  *   node tools/build-rules.mjs           write rules/
  *   node tools/build-rules.mjs --check   verify rules/ matches skills/ (CI)

@@ -1,9 +1,10 @@
-# Using These Rules in Cursor, Windsurf, and Copilot
+# Using These Skills and Rules in Cursor, Windsurf, and Copilot
 
 Claude Code loads the three rulesets in this repo as [Agent
 Skills](https://code.claude.com/docs/en/skills) — a folder with a `SKILL.md` in
-it, discovered automatically, invoked by description. No other assistant works
-that way. Cursor, Windsurf, and GitHub Copilot each read a *rules file*: plain
+it, discovered automatically, invoked by description. Cursor, Windsurf, and
+GitHub Copilot can now load skills too; see [Skills or a rules
+file?](#skills-or-a-rules-file) below. Each also reads a *rules file*: plain
 markdown, a different path per tool, a different frontmatter dialect on top, and
 different conditions under which it gets injected into the prompt at all.
 
@@ -16,6 +17,76 @@ once copied out.
 that frontmatter. This guide is the long version: what each tool actually does
 with the file once it's in place, which size caps will silently truncate or
 reject it, how to confirm it fired, and where each one will quietly do nothing.
+
+---
+
+## Skills or a rules file?
+
+Cursor, Devin Desktop (Windsurf), and Copilot now load Agent Skills themselves.
+Every skill folder in this repo can be installed in them as it is. That
+includes the three slash commands (`a11y-scan`, `aria-fix`, `a11y-report`) and
+`nvda-scan`, which are procedures and have no rules file.
+
+**This section comes from each tool's documentation as of October 2026. None
+of it has been tested in those tools.** Check the links in [Further
+reading](#further-reading) before you rely on a path.
+
+<!-- markdownlint-disable MD013 -->
+| Tool | Reads skills from | Run one by name |
+| --- | --- | --- |
+| Cursor | `.cursor/skills/`, `.agents/skills/`, `~/.cursor/skills/`, `~/.agents/skills/`. Also `.claude/skills/` and `~/.claude/skills/` | `/a11y-scan`, or type `@` and pick the skill |
+| Copilot (VS Code, Copilot CLI, cloud agent) | `.github/skills/`, `.claude/skills/`, `.agents/skills/`, `~/.copilot/skills/`, `~/.claude/skills/`, `~/.agents/skills/` | `/a11y-scan` |
+| Devin Desktop (Windsurf) | `.devin/skills/`, `.windsurf/skills/`, `.agents/skills/`, `~/.codeium/windsurf/skills/`, `~/.config/devin/skills/`, `~/.agents/skills/`. Also `.claude/skills/` and `~/.claude/skills/` when Claude Code config reading is turned on | `@a11y-scan` |
+<!-- markdownlint-enable MD013 -->
+
+All three list `.claude/skills/`, Devin Desktop only with that setting on. If
+the skills are already installed there for Claude Code, these tools may pick
+them up with nothing more to copy.
+
+A skill and a rules file do different jobs:
+
+- **A rules file set to always-on is sent with every request.** Use it when
+  the rules must apply whether or not the tool decides the task is UI work.
+  That is what the rest of this guide covers.
+- **A skill is loaded when the tool matches its description, or when you name
+  it.** It costs nothing until then, and the tool can miss it. The procedures
+  only make sense this way: nobody wants "scan this target" in every request.
+
+### What does not carry over
+
+- **`$ARGUMENTS` is Claude Code syntax.** The slash commands use it for the
+  text typed after the command. Copilot's page says extra text after the
+  command is passed along as context. Cursor's and Devin's pages do not say
+  what happens to it, and none of the three describes replacing
+  `$ARGUMENTS`. Name the target in your message.
+- **Manual-only may not hold in Devin Desktop.** The slash commands set
+  `disable-model-invocation: true`, so in Claude Code they run only when
+  typed. Cursor and Copilot document that field with the same meaning.
+  Devin's skills page lists only `name` and `description`, so there a command
+  may run on its own when its description matches.
+- **`allowed-tools` is Claude Code frontmatter.** The other tools' pages do
+  not list it. Expect each tool's own permission prompts to apply.
+- **Script paths assume `~/.claude/skills/`.** `a11y-scan` runs the checkers
+  from that folder. Install the skills there, or adjust the paths as the
+  skill says to for a project-scoped install.
+- **Copilot opens a bundled file only when `SKILL.md` links to it.** The
+  skills here name their `references/` files in backticks, not as links. If
+  Copilot does not read one, tell it to.
+
+### `nvda-scan` in another tool
+
+`nvda-scan` needs three things besides the skill folder, in any tool:
+
+1. Windows, with NVDA running. See
+   [automate-nvda-testing.md](automate-nvda-testing.md).
+2. The nvda-mcp server registered in that tool. The NVDA guide shows the
+   Claude Code registration; Cursor, Copilot, and Devin Desktop each keep
+   their own MCP server settings, so add the same server there.
+3. A way to run the bundled PowerShell script that brings Chrome to the
+   foreground. The skill gives the path for a `~/.claude/skills/` install.
+
+The skill was written and measured in Claude Code. In the other tools it is
+untested.
 
 ---
 
@@ -403,7 +474,12 @@ you're over, or a trigger set to something other than always-on.
 | Copilot across IDEs | `.github/copilot-instructions.md` only — the one type supported everywhere |
 | Mixed team, mixed tools | `AGENTS.md` at the root, plus tool-specific files for anyone who needs scoping |
 | Claude Code | The skills, not these files. See [INSTALL.md](../INSTALL.md). |
+| Any of the above, for the slash commands or `nvda-scan` | The skill folders. They have no rules file. See [Skills or a rules file?](#skills-or-a-rules-file) |
 <!-- markdownlint-enable MD013 -->
+
+The rows above are for the three rulesets as always-on rules. Each tool can
+also load them as skills, which costs nothing until one is used and can be
+missed when the tool does not match its description.
 
 Installing more than one is fine and usually redundant rather than harmful — a
 tool reads the file it knows about and ignores the rest. The cost is drift
@@ -471,6 +547,13 @@ intact.
 
 - [Cursor — Rules](https://cursor.com/docs/rules) — frontmatter fields and rule
   types
+- [Cursor — Agent Skills](https://cursor.com/docs/skills) — where Cursor reads
+  skills from, its frontmatter fields, and how to run one
+- [Devin Desktop — Skills](https://docs.devin.ai/desktop/cascade/skills) — the
+  Windsurf skills folders
+- [VS Code — Agent
+  Skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills)
+  — Copilot's skills folders and frontmatter fields
 - [Devin Desktop — Rules and
   memories](https://docs.devin.ai/desktop/cascade/memories) — the current
   Windsurf docs
