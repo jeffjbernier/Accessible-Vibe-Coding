@@ -62,7 +62,7 @@ Plus the three rulesets as standalone files, in `rules/`:
 <!-- markdownlint-disable MD013 -->
 | File | For |
 | --- | --- |
-| `rules/accessibility.md` | Cursor, Windsurf, Copilot, and anything else that reads a rules file rather than an Agent Skill |
+| `rules/accessibility.md` | Cursor, Windsurf, Copilot, and anything else that takes a rules file sent with every request |
 | `rules/accessible-forms.md` | The same, for forms |
 | `rules/accessible-tables.md` | The same, for data tables |
 <!-- markdownlint-enable MD013 -->
@@ -72,7 +72,7 @@ frontmatter, every repo-relative path rewritten to an absolute URL so the file
 still works once you copy it into your own project. The skills are the source of
 truth; the rules files are a build output. The slash commands and `nvda-scan`
 have no rules files, because they are procedures rather than constraints on
-output.
+output. In Cursor, Windsurf, and Copilot they install as skills.
 
 And two guides, in `guides/`:
 
@@ -125,10 +125,12 @@ server registered first —
 [guides/automate-nvda-testing.md](guides/automate-nvda-testing.md) walks through
 it.
 
-Not using Claude? Cursor, Windsurf, and Copilot don't load Agent Skills — copy
-the matching file out of `rules/` instead. [INSTALL.md](INSTALL.md) has the
-destination path and frontmatter each one expects. For the long version — what
-each tool does with the file, size caps, and how to verify it fired — read
+Not using Claude? Cursor, Windsurf, and Copilot can load the same skill
+folders, slash commands and `nvda-scan` included. For rules that are sent with
+every request, copy the matching file out of `rules/` instead.
+[INSTALL.md](INSTALL.md) has the folder each tool reads, and the destination
+path and frontmatter each rules file expects. For the long version — what each
+tool does with the file, size caps, and how to verify it fired — read
 [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md).
 
 ### 2. Build something

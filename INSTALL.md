@@ -32,10 +32,11 @@ when you type them:
 Copy them exactly like the other skills. Two agent definitions ship alongside
 everything; see [Agents](#agents) below.
 
-Cursor, Windsurf, and Copilot don't load Agent Skills. For those, the repo ships
-the three rulesets as standalone files in `rules/` — see [Cursor, Windsurf, and
-Copilot](#cursor-windsurf-and-copilot) below. `nvda-scan` has no rules-file
-form; it only runs inside Claude Code.
+Cursor, Windsurf, and Copilot can load these skills too, and the repo also
+ships the three rulesets as standalone files in `rules/` for an always-on
+install — see [Cursor, Windsurf, and Copilot](#cursor-windsurf-and-copilot)
+below. The slash commands and `nvda-scan` have no rules-file form; in those
+tools they install as skills.
 
 ---
 
@@ -265,16 +266,60 @@ Cowork and cloud sessions — not just the desktop app.
 
 ## Cursor, Windsurf, and Copilot
 
-These tools read a rules file, not a skill. `rules/accessibility.md`,
-`rules/accessible-forms.md`, and `rules/accessible-tables.md` hold the same content
-as the skills with the frontmatter stripped and every repo-relative path
-rewritten to an absolute URL, so they keep working once copied out of this
-repo.
+These tools take the skills in two forms.
 
-The body is the same everywhere. What changes is the destination, the
-frontmatter you put on top, and on Windsurf a split to fit its size cap. This
-section is the short version. For what each tool actually does with the file,
-the size caps that silently truncate it, and how to confirm it fired, read
+**As skills.** Current versions of all three load Agent Skills, so any skill
+folder in this repo installs in them as it is. That is the only form the slash
+commands and `nvda-scan` come in. See [Installing the skills
+themselves](#installing-the-skills-themselves).
+
+**As rules files.** A rules file set to always-on is sent with every request,
+where a skill is loaded only when the tool matches its description or you name
+it. `rules/accessibility.md`, `rules/accessible-forms.md`, and
+`rules/accessible-tables.md` hold the same content as the skills with the
+frontmatter stripped and every repo-relative path rewritten to an absolute
+URL, so they keep working once copied out of this repo. The rest of this
+section, from [Cursor](#cursor) on, covers them.
+
+### Installing the skills themselves
+
+The simplest install is the Claude Code one at the top of this file, into
+`~/.claude/skills/`. Cursor and Copilot list that folder among the ones they
+read. Windsurf reads it only when its Claude Code config reading is turned
+on. `a11y-scan` runs its checker scripts from that folder, so its paths work
+there with no changes.
+
+To use a tool's own folder instead, copy the skill folders into it:
+
+| Tool | Project folder | Run a command |
+| --- | --- | --- |
+| Cursor | `.cursor/skills/` | `/a11y-scan` |
+| Copilot | `.github/skills/` | `/a11y-scan` |
+| Windsurf (Devin Desktop) | `.devin/skills/` | `@a11y-scan` |
+
+```bash
+mkdir -p .cursor/skills
+cp -r Accessible-Vibe-Coding/skills/a11y-scan .cursor/skills/
+cp -r Accessible-Vibe-Coding/skills/aria-fix .cursor/skills/
+cp -r Accessible-Vibe-Coding/skills/a11y-report .cursor/skills/
+```
+
+Installed this way, the checker paths inside `a11y-scan` still point at
+`~/.claude/skills/`. Change them to the folder you used.
+
+This comes from each tool's documentation as of October 2026 and has not been
+tested in those tools. Some things do not carry over: `$ARGUMENTS`, and in
+Windsurf the manual-only setting on the slash commands. `nvda-scan` also needs
+the nvda-mcp server registered in that tool, on Windows. The details are in
+[Skills or a rules
+file?](guides/using-rules-in-other-tools.md#skills-or-a-rules-file) in the
+other-tools guide.
+
+The body of a rules file is the same everywhere. What changes is the
+destination, the frontmatter you put on top, and on Windsurf a split to fit
+its size cap. This section is the short version. For what each tool actually
+does with the file, the size caps that silently truncate it, and how to
+confirm it fired, read
 [guides/using-rules-in-other-tools.md](guides/using-rules-in-other-tools.md).
 
 ### Cursor
