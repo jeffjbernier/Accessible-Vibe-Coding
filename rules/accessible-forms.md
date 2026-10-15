@@ -13,7 +13,7 @@
 > Applies to hand-written and AI-generated code alike, even when the request
 > never mentions layout, grid, tokens, validation, or accessibility.
 >
-> Always-apply ruleset, generated from the accessible-forms skill v2.0.0 in
+> Always-apply ruleset, generated from the accessible-forms skill v2.1.0 in
 > accessible-vibe-coding. Licensed MIT.
 >
 > Source: <https://github.com/jeffjbernier/Accessible-Vibe-Coding>
@@ -289,8 +289,28 @@ and move focus to it:
   submits out of six). A marker query string does not help: the restore
   happened even when the POST address already differed from the form page's.
   - A successful submit's redirect inherits the anchor (browsers carry a
-    request's fragment to a `Location` that has none). Nothing on the
-    destination has that id, so nothing moves; accept it.
+    request's fragment to a `Location` that has none), so the next page's
+    address ends `#error-summary` though nothing failed. Nothing on the
+    destination has that id, so nothing moves, but the address is wrong.
+    Every page shell loads one module that drops the fragment where no
+    summary is rendered:
+
+    ```js
+    // Loaded with <script type="module"> by every layout.
+    if (window.location.hash === '#error-summary'
+        && document.getElementById('error-summary') === null) {
+      window.history.replaceState(window.history.state, '',
+        window.location.pathname + window.location.search);
+    }
+    ```
+
+    A refused page keeps the fragment, because its summary is present, so
+    focus and the reading position are unchanged. `replaceState` adds no
+    history entry and does not reload. Do not fix this on the server: a
+    `Location` with its own fragment leaves a bare `#` or jumps the page,
+    and redirecting refusals to `…#error-summary` means carrying errors and
+    answers in the session for every form. Without JavaScript the fragment
+    stays, harmlessly. Found on the Knowbility AIR register, 15 Oct 2026.
   - Single-button forms (`role="none"`, §10.1) never render the summary and
     keep their plain `action`.
 - **Focus is the only announcement — no `role="alert"`.** An alert fires, then
